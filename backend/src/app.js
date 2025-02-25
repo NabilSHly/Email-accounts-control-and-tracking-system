@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const createHttpError = require('http-errors');
 const dotenv = require('dotenv');
+const { register, login } = require('./auth');
 
 dotenv.config();
 const app = express();
@@ -20,11 +21,30 @@ app.use(cors({
 
 // Body parsing with size limit
 app.use(bodyParser.json({ limit: '10kb' }));
+app.use((req, res, next) => {
+  const publicRoutes = ['/auth/register', '/auth/login'];
+  if (publicRoutes.includes(req.path)) {
+    return next(); // Skip authentication for public routes
+  }
 
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return next(createHttpError(401, 'Unauthorized: No token provided'));
+
+  try {
+    req.user = verifyToken(token);
+    next();
+  } catch (error) {
+    console.error("❌ Invalid token:", error.message);
+    return next(createHttpError(401, 'Unauthorized: Invalid or expired token'));
+  }
+});
 
 app.get('/', (req, res) => {
   res.json({ status: 'API operational', timestamp: new Date() });
 });
+// Auth routes (public)
+app.post('/auth/register', register);
+app.post('/auth/login', login);
 
 // Error handling middleware (must be last)
 app.use((err, req, res, next) => {

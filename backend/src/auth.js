@@ -10,7 +10,7 @@ const register = async (req, res, next) => {
 
     // Validation
     if ( !username || !password) {
-      throw createHttpError(400, 'Domain name, username and password are required');
+      throw createHttpError(400, 'username and password are required');
     }
 
     if (password.length < 6) {
@@ -75,9 +75,6 @@ const login = async (req, res, next) => {
     }
 
     // Extract domain and username
-    if ( !username) {
-      throw createHttpError(400, 'Use format "domain:username"');
-    }
 
     const user = await prisma.users.findFirst({
       where: {
