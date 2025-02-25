@@ -58,15 +58,11 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = (authToken, user) => {
-    try {
-      if (!validateToken(authToken)) return;
-      localStorage.setItem("authToken", authToken);
-      localStorage.setItem("userData", JSON.stringify(user));
-      setUserData(user);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Error saving to localStorage:", error);
-    }
+    if (!validateToken(authToken)) return;
+    localStorage.setItem("authToken", authToken);
+    localStorage.setItem("userData", JSON.stringify(user));
+    setUserData(user);
+    setIsAuthenticated(true);
   };
 
   // Logout function

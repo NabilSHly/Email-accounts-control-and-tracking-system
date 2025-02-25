@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import PrivateRoute from "@/components/PrivateRoute";
 import Layout from "@/layout/Layout";
 import Login from "@/pages/login/Login";
-import AuthProvider from "@/context/AuthContext";
+import {AuthProvider} from "@/context/AuthContext";
 import './index.css'
 const router = createBrowserRouter([
   {

@@ -3,70 +3,48 @@ const prisma = require('./db');
 const { generateToken } = require('./utils');
 const createHttpError = require('http-errors');
 
-// Register a new user (Without password hashing)
+// Register a new user
 const register = async (req, res, next) => {
   try {
-    const {  username, password, permissions } = req.body;
+    const { username, password, permissions } = req.body;
 
-    // Validation
-    if ( !username || !password) {
-      throw createHttpError(400, 'username and password are required');
+    if (!username || !password) {
+      throw createHttpError(400, 'Username and password are required');
     }
 
     if (password.length < 6) {
       throw createHttpError(400, 'Password must be at least 6 characters');
     }
 
-    return await prisma.$transaction(async (tx) => {
-    
+    const existingUser = await prisma.users.findFirst({ where: { username } });
+    if (existingUser) {
+      throw createHttpError(409, 'Username already exists');
+    }
 
-      // Check for existing username 
-      const existingUser = await tx.users.findFirst({
-        where: {
-          username,
-        }
-      });
-
-      if (existingUser) {
-        throw createHttpError(409, 'Username already exists');
-      }
-
-      // Create user with plain text password (NOT RECOMMENDED)
-      const user = await tx.users.create({
-        data: {
-          username,
-          password: password, // Storing plain text password
-          permissions: permissions || ['BASIC_ACCESS'],
-        },
-        select: {
-          id: true,
-          username: true,
-          createdAt: true
-        }
-      });
-
-      // Generate token
-      const token = generateToken({
-        id: user.id,
-        permissions: user.permissions
-      });
-
-      res.status(201).json({
-        success: true,
-        token,
-        user: {
-          ...user,
-        }
-      });
+    // Directly use the password without hashing
+    const user = await prisma.users.create({
+      data: {
+        username,
+        password, // Use the plain password
+        permissions: permissions || ['BASIC_ACCESS'],
+      },
+      select: {
+        id: true,
+        username: true,
+        createdAt: true,
+      },
     });
 
+    const token = generateToken({ id: user.id, permissions: user.permissions });
+    res.status(201).json({ success: true, token, user });
   } catch (error) {
     next(error);
   }
 };
 
-// Login a user (Without password hashing)
+// Login a user
 const login = async (req, res, next) => {
+  
   try {
     const { username, password } = req.body;
 
@@ -74,39 +52,14 @@ const login = async (req, res, next) => {
       throw createHttpError(400, 'Username and password required');
     }
 
-    // Extract domain and username
-
-    const user = await prisma.users.findFirst({
-      where: {
-        username: username,
-      }
-    });
-
-    if (!user) {
+    const user = await prisma.users.findFirst({ where: { username } });
+    if (!user || user.password !== password) { // Directly compare passwords
       throw createHttpError(401, 'Invalid credentials');
     }
 
-    // Direct password comparison (NOT SECURE)
-    if (password !== user.password) {
-      throw createHttpError(401, 'Invalid credentials');
-    }
-
-    // Generate token
-    const token = generateToken({
-      id: user.id,
-      permissions: user.permissions
-    });
-
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        permissions: user.permissions
-      }
-    });
-
+    const token = generateToken({ id: user.id, permissions: user.permissions });
+    
+    res.json({ success: true, token, user: { id: user.id, username: user.username, permissions: user.permissions } });
   } catch (error) {
     next(error);
   }

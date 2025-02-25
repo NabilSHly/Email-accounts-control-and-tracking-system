@@ -1,15 +1,15 @@
-import { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router"; // Ensure correct import for React Router
-import { useContext } from "react";
-import AuthContext from "@/context/AuthContext"; // Import context
+import AuthContext from "../../context/AuthContext"; // Import context
 import axios from "axios"; // Import Axios
 import {Button} from "@/components/ui/button"; // Import Button component
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useContext(AuthContext) || { login: () => {} };
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -35,6 +35,8 @@ const Login = () => {
       );
 
       if (response.data.success) {
+        console.log("Login successful:", response.data);
+        
         login(response.data.token, response.data.user); // Call login from context to set token and user data
         navigate("/"); // Redirect to the home page after login
       } else {
@@ -89,7 +91,7 @@ const Login = () => {
                   type="submit"
                   className="border hover:border-primary-hover bg-primary hover:bg-primary-lite text-white px-4 py-2 rounded-lg shadow ring-1 ring-inset ring-gray-300"
                 >
-                  {isLoading ? "دخول..." : "دخول"}
+                  {isLoading ? "Loading..." : "دخول"}
                 </Button>
                 {error && <p style={{ color: "red" }}>{error}</p>}
               </div>

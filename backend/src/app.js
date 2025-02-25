@@ -4,6 +4,7 @@ const cors = require('cors');
 const createHttpError = require('http-errors');
 const dotenv = require('dotenv');
 const { register, login } = require('./auth');
+const { verifyToken } = require('./utils');
 
 dotenv.config();
 const app = express();
