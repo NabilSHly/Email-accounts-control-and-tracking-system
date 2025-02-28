@@ -10,9 +10,20 @@ generator client {
 
 
 model users {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique
-  password        String
-  permissions     Json
-  createdAt       DateTime  @default(now())
+  id            Int       @id @default(autoincrement())
+  name          String    @default("Unknown") // Add a default value
+  username      String    @unique
+  departmentsId Json      @default("[]") // Add a default value (empty array for departments)
+  password      String
+  permissions   Json      @default("[]")
+  createdAt     DateTime  @default(now())
+}
+
+model departments{
+  departmentId Int @id @default(autoincrement())
+  department   String
+}
+model municipalities{
+  municipalityId Int @id 
+  municipality   String
 }

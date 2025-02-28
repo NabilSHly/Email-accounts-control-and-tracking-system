@@ -59,7 +59,7 @@ const login = async (req, res, next) => {
 
     const token = generateToken({ id: user.id, permissions: user.permissions });
     
-    res.json({ success: true, token, user: { id: user.id, username: user.username, permissions: user.permissions } });
+    res.json({ success: true, token, user: { id: user.id,name: user.name, username: user.username, permissions: user.permissions, departmentsId: user.departmentsId } });
   } catch (error) {
     next(error);
   }

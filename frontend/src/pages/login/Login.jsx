@@ -62,7 +62,7 @@ const Login = () => {
           
           <form className="p-12 md:p-24" onSubmit={handleSubmit}>
             <div className="max-w-md mx-auto space-y-3">
-              <h3 className="text-lg font-semibold">N&A</h3>
+              <h3 className="text-lg font-semibold">سجل عناوين البريد الالكتروني</h3>
               <div>
                 <label className="block py-1">اسم المستخدم</label>
                 <input

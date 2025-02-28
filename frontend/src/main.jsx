@@ -6,6 +6,9 @@ import Layout from "@/layout/Layout";
 import Login from "@/pages/login/Login";
 import {AuthProvider} from "@/context/AuthContext";
 import './index.css'
+import MangeUsersPage from './pages/users/MangeUsersPage';
+import DepartmentsPage from './pages/departments/DepartmentsPage';
+import MunicipalitiesPage from './pages/municipalities/MunicipalitiesPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -13,7 +16,25 @@ const router = createBrowserRouter([
       <PrivateRoute>
         <Layout />
       </PrivateRoute>
-    )
+    ),
+    children: [
+      {
+        path: "/",
+        element: <h1>Home</h1>,
+      },
+      {
+        path: "/users",
+        element: <MangeUsersPage />,
+      },
+      {
+        path: "/departments",
+        element: <DepartmentsPage />,
+      },
+      {
+        path: "/municipalities",
+        element: <MunicipalitiesPage />,
+      },
+    ],
   },
   {
     path: "/login",

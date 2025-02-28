@@ -12,6 +12,10 @@ module.exports = {
  			sm: 'calc(var(--radius) - 4px)'
  		},
  		colors: {
+			pSnow:'#fbfaf9',
+			pSpaceCadet:'#1c1456',
+            pIsabelline:'#f2f0ee',			
+            pBrilliantAzure:'#348cff', 
  			background: 'hsl(var(--background))',
  			foreground: 'hsl(var(--foreground))',
  			card: {

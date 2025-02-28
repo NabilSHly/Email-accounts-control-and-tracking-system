@@ -5,6 +5,10 @@ const createHttpError = require('http-errors');
 const dotenv = require('dotenv');
 const { register, login } = require('./auth');
 const { verifyToken } = require('./utils');
+const { rbac } = require('./middleware/rbac');
+const usersController = require('./controllers/users');
+const departmentsController = require('./controllers/departments');
+const municipalitiesControler = require('./controllers/municipalities');
 
 dotenv.config();
 const app = express();
@@ -46,6 +50,29 @@ app.get('/', (req, res) => {
 // Auth routes (public)
 app.post('/auth/register', register);
 app.post('/auth/login', login);
+
+
+app.post('/users', rbac('ADMIN'), usersController.createUser);
+app.get('/users', rbac('ADMIN'), usersController.getAllUsers);
+app.put('/users/:id', rbac('ADMIN'), usersController.updateUser);
+app.delete('/users/:id', rbac('ADMIN'), usersController.deleteUser);
+
+app.post('/departments', rbac('ADMIN'), departmentsController.createDepartment);
+app.get('/departments', rbac('ADMIN'), departmentsController.getAllDepartments);
+app.put('/departments/:id', rbac('ADMIN'), departmentsController.updateDepartments);
+app.delete('/departments/:id', rbac('ADMIN'), departmentsController.deleteDepartment);
+
+
+app.get('/municipalities',rbac('ADMIN'),municipalitiesControler.getAllMunicipalities );
+app.post('/municipalities',rbac('ADMIN'), municipalitiesControler.createMunicipality);
+app.put('/municipalities',rbac('ADMIN'),municipalitiesControler.updateMunicipality );
+app.delete('/municipalities',rbac('ADMIN'),municipalitiesControler.deleteMunicipality );
+
+
+app.post('/munemps',rbac('ADMIN'), );
+app.put('/munemps',rbac('ADMIN'), );
+app.get('/munemps',rbac('ADMIN'), );
+
 
 // Error handling middleware (must be last)
 app.use((err, req, res, next) => {
