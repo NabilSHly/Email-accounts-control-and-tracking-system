@@ -14,7 +14,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import MenuIcon from '@mui/icons-material/Menu';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Component,  MapPinned } from 'lucide-react';
+import { Component,  MapPinned, History } from 'lucide-react';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -90,6 +90,14 @@ export default function Sidebar() {
               </ListItemButton>
             </ListItem>
             <Divider />
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/admin/audit-logs')}>
+                <ListItemIcon>
+                <History className='text-primary'/>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"سجل النشاطات"} />
+              </ListItemButton>
+            </ListItem>
         </List>
         <ListItem  className=" bottom-0  bg-white" disablePadding>
               <ListItemButton  onClick={handleLogout}>

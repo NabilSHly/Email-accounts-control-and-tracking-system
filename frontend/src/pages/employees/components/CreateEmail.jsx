@@ -278,7 +278,7 @@ export default function CreateEmail() {
     : municipalities;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className=" w-3/4 mx-auto p-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

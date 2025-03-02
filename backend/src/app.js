@@ -10,6 +10,8 @@ const usersController = require('./controllers/users');
 const departmentsController = require('./controllers/departments');
 const municipalitiesControler = require('./controllers/municipalities');
 const employeesController = require('./controllers/employees');
+const auditLogsController = require('./controllers/auditLogs');
+const { actionLoggerMiddleware } = require('./middleware/actionLogger');
 
 dotenv.config();
 const app = express();
@@ -53,31 +55,31 @@ app.post('/auth/register', register);
 app.post('/auth/login', login);
 
 
-app.post('/users', rbac('ADMIN'), usersController.createUser);
+app.post('/users', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.createUser);
 app.get('/users', rbac('ADMIN'), usersController.getAllUsers);
-app.put('/users/:id', rbac('ADMIN'), usersController.updateUser);
-app.delete('/users/:id', rbac('ADMIN'), usersController.deleteUser);
+app.put('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.updateUser);
+app.delete('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.deleteUser);
 
-app.post('/departments', rbac('ADMIN'), departmentsController.createDepartment);
+app.post('/departments', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.createDepartment);
 app.get('/departments', rbac('ADMIN'), departmentsController.getAllDepartments);
-app.put('/departments/:id', rbac('ADMIN'), departmentsController.updateDepartments);
-app.delete('/departments/:id', rbac('ADMIN'), departmentsController.deleteDepartment);
+app.put('/departments/:id', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.updateDepartments);
+app.delete('/departments/:id', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.deleteDepartment);
 
 
 app.get('/municipalities',rbac('ADMIN'),municipalitiesControler.getAllMunicipalities );
-app.post('/municipalities',rbac('ADMIN'), municipalitiesControler.createMunicipality);
-app.put('/municipalities/:id',rbac('ADMIN'),municipalitiesControler.updateMunicipality );
-app.delete('/municipalities/:id',rbac('ADMIN'),municipalitiesControler.deleteMunicipality );
+app.post('/municipalities',rbac('ADMIN'), actionLoggerMiddleware('municipality'), municipalitiesControler.createMunicipality);
+app.put('/municipalities/:id',rbac('ADMIN'),actionLoggerMiddleware('municipality'),municipalitiesControler.updateMunicipality );
+app.delete('/municipalities/:id',rbac('ADMIN'),actionLoggerMiddleware('municipality'),municipalitiesControler.deleteMunicipality );
 
 // Employee routes - Admin operations
-app.post('/employees/admin', rbac('ADMIN'), employeesController.adminCreateEmployeeWithEmail);
+app.post('/employees/admin', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.adminCreateEmployeeWithEmail);
 app.get('/employees', rbac('ADMIN'), employeesController.getAllEmployees);
 app.get('/employees/pending', rbac('ADMIN'), employeesController.getPendingEmailRequests);
 app.get('/employees/:id', rbac('ADMIN'), employeesController.getEmployeeById);
-app.put('/employees/:id', rbac('ADMIN'), employeesController.updateEmployee);
-app.delete('/employees/:id', rbac('ADMIN'), employeesController.deleteEmployee);
-app.patch('/employees/:id/status', rbac('ADMIN'), employeesController.updateEmployeeStatus);
-app.post('/employees/:id/approve', rbac('ADMIN'), employeesController.approveAndCreateEmail);
+app.put('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.updateEmployee);
+app.delete('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.deleteEmployee);
+app.patch('/employees/:id/status', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.updateEmployeeStatus);
+app.post('/employees/:id/approve', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.approveAndCreateEmail);
 
 // Employee routes - Department and Municipality filtering
 app.get('/employees/department/:departmentId', rbac('ADMIN'), employeesController.getEmployeesByDepartment);
@@ -90,6 +92,8 @@ app.post('/munemps',rbac('ADMIN'), );
 app.put('/munemps',rbac('ADMIN'), );
 app.get('/munemps',rbac('ADMIN'), );
 
+// Audit logs routes (admin only)
+app.get('/audit-logs', rbac('ADMIN'), auditLogsController.getFilteredAuditLogs);
 
 // Error handling middleware (must be last)
 app.use((err, req, res, next) => {

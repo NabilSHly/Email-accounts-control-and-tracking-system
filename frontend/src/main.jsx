@@ -13,6 +13,7 @@ import EmployeesEmails from './pages/employees/employeesEmails';
 import CreateEmploye from './pages/employees/components/RequestEmail';
 import RequestEmail from './pages/employees/components/RequestEmail';
 import CreateEmail from './pages/employees/components/CreateEmail';
+import AuditLogs from './pages/admin/AuditLogs';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "/employees/create",
         element: <CreateEmail />,
+      },
+      {
+        path: "/admin/audit-logs",
+        element: <AuditLogs />,
       }
     ],
   },

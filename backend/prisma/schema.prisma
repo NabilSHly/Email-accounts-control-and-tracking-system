@@ -16,6 +16,17 @@ enum EmployeeStatus {
   PENDING
 }
 
+// Enum for Action Types
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  APPROVE
+  REJECT
+  OTHER
+}
+
 // Users model with relations and improved defaults
 model users {
   id            Int      @id @default(autoincrement())
@@ -28,6 +39,9 @@ model users {
   
   // Relation to departments
   departments   departments[] @relation("UserDepartments")
+  
+  // Add this relation
+  auditLogs     auditLogs[]
 }
 
 // Departments model with better relationships
@@ -47,7 +61,7 @@ model municipalities {
   municipality   String
   createdAt      DateTime @default(now())
   
-  // Relation to employees
+  // Relation to employeess
   employees      employees[]
 }
 
@@ -70,5 +84,21 @@ model employees {
   // Relations
   municipality   municipalities @relation(fields: [municipalityId], references: [municipalityId])
   departmentsRel departments[]   @relation("EmployeeDepartments")
+}
+
+// Audit Log model
+model auditLogs {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  username    String
+  actionType  ActionType
+  entityType  String      // e.g., "employee", "department", "user"
+  entityId    String?     // ID of the affected entity (if applicable)
+  details     String      // JSON string with action details
+  ipAddress   String?
+  timestamp   DateTime    @default(now())
+  
+  // Relation to users (optional, can be useful for joins)
+  user        users       @relation(fields: [userId], references: [id])
 }
 
