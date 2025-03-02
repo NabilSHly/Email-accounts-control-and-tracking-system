@@ -4,20 +4,30 @@ const createHttpError = require('http-errors');
 // Create a new municipality
 const createMunicipality = async (req, res, next) => {
   try {
-    const { municipality } = req.body;
 
-    if (!municipality) {
-      throw createHttpError(400, 'Municipality name is required');
+    const {municipalityId, municipality } = req.body;
+console.log( req.body);
+
+    if (!municipality & !municipalityId) {
+      throw createHttpError(400, 'Municipality name & municipalityId is required');
     }
 
-    const existingMunicipality = await prisma.municipalities.findFirst({ where: { municipality } });
+    const existingMunicipality = await prisma.municipalities.findFirst({
+      where: {
+        OR: [
+          { municipality: municipality },
+          { municipalityId:parseInt(municipalityId) }
+        ]
+      }
+    });
     if (existingMunicipality) {
       throw createHttpError(409, 'Municipality already exists');
     }
 
     const newMunicipality = await prisma.municipalities.create({
       data: {
-        municipality,
+        municipality: municipality,
+        municipalityId: parseInt(municipalityId)
       },
     });
 
@@ -46,7 +56,8 @@ const updateMunicipality = async (req, res, next) => {
     const updatedMunicipality = await prisma.municipalities.update({
       where: { municipalityId: parseInt(id) },
       data: {
-        municipality,
+        municipality: municipality,
+        municipalityId: parseInt(id) 
       },
     });
 

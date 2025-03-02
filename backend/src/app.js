@@ -9,6 +9,7 @@ const { rbac } = require('./middleware/rbac');
 const usersController = require('./controllers/users');
 const departmentsController = require('./controllers/departments');
 const municipalitiesControler = require('./controllers/municipalities');
+const employeesController = require('./controllers/employees');
 
 dotenv.config();
 const app = express();
@@ -65,9 +66,25 @@ app.delete('/departments/:id', rbac('ADMIN'), departmentsController.deleteDepart
 
 app.get('/municipalities',rbac('ADMIN'),municipalitiesControler.getAllMunicipalities );
 app.post('/municipalities',rbac('ADMIN'), municipalitiesControler.createMunicipality);
-app.put('/municipalities',rbac('ADMIN'),municipalitiesControler.updateMunicipality );
-app.delete('/municipalities',rbac('ADMIN'),municipalitiesControler.deleteMunicipality );
+app.put('/municipalities/:id',rbac('ADMIN'),municipalitiesControler.updateMunicipality );
+app.delete('/municipalities/:id',rbac('ADMIN'),municipalitiesControler.deleteMunicipality );
 
+// Employee routes - Admin operations
+app.post('/employees/admin', rbac('ADMIN'), employeesController.adminCreateEmployeeWithEmail);
+app.get('/employees', rbac('ADMIN'), employeesController.getAllEmployees);
+app.get('/employees/pending', rbac('ADMIN'), employeesController.getPendingEmailRequests);
+app.get('/employees/:id', rbac('ADMIN'), employeesController.getEmployeeById);
+app.put('/employees/:id', rbac('ADMIN'), employeesController.updateEmployee);
+app.delete('/employees/:id', rbac('ADMIN'), employeesController.deleteEmployee);
+app.patch('/employees/:id/status', rbac('ADMIN'), employeesController.updateEmployeeStatus);
+app.post('/employees/:id/approve', rbac('ADMIN'), employeesController.approveAndCreateEmail);
+
+// Employee routes - Department and Municipality filtering
+app.get('/employees/department/:departmentId', rbac('ADMIN'), employeesController.getEmployeesByDepartment);
+app.get('/employees/municipality/:municipalityId', rbac('ADMIN'), employeesController.getEmployeesByMunicipality);
+
+// Employee routes - User operations (request email creation)
+app.post('/employees/request', employeesController.requestEmployeeEmail);
 
 app.post('/munemps',rbac('ADMIN'), );
 app.put('/munemps',rbac('ADMIN'), );

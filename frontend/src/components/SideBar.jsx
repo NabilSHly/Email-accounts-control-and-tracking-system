@@ -49,9 +49,9 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/departments')}>
                 <ListItemIcon>
-                <Component className='text-primary'/>
+                <Component className=''/>
                 </ListItemIcon>
-                <ListItemText className='text-primary' primary={"ادارة الأقسام"} />
+                <ListItemText className={""} primary={"ادارة الأقسام"} />
               </ListItemButton>
             </ListItem>
             <Divider />
@@ -62,6 +62,31 @@ export default function Sidebar() {
                 <MapPinned className='text-primary'/>
                 </ListItemIcon>
                 <ListItemText className='text-primary' primary={"البلديات"} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/employees')}>
+                <ListItemIcon>
+                <MapPinned className='text-primary'/>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"عناوين بريد موظفي مكاتب البلديات"} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/employees/request')}>
+                <ListItemIcon>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"طلب صنع عنوان بريد الكتروني لموظف  بلدية     "} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/employees/create')}>
+                <ListItemIcon>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={" صنع عنوان بريد الكتروني لموظف  بلدية     "} />
               </ListItemButton>
             </ListItem>
             <Divider />

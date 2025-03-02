@@ -9,6 +9,10 @@ import './index.css'
 import MangeUsersPage from './pages/users/MangeUsersPage';
 import DepartmentsPage from './pages/departments/DepartmentsPage';
 import MunicipalitiesPage from './pages/municipalities/MunicipalitiesPage';
+import EmployeesEmails from './pages/employees/employeesEmails';
+import CreateEmploye from './pages/employees/components/RequestEmail';
+import RequestEmail from './pages/employees/components/RequestEmail';
+import CreateEmail from './pages/employees/components/CreateEmail';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -34,6 +38,18 @@ const router = createBrowserRouter([
         path: "/municipalities",
         element: <MunicipalitiesPage />,
       },
+      {
+        path: "/employees",
+        element: <EmployeesEmails />,
+      },
+      {
+        path: "/employees/request",
+        element: <RequestEmail />,
+      },
+      {
+        path: "/employees/create",
+        element: <CreateEmail />,
+      }
     ],
   },
   {

@@ -8,10 +8,10 @@ export default function HeaderMenu() {
    
     
   return (
-    <header className='border-b w-full bg-pSnow text-black flex justify-between items-center '>
+    <header className='border-b w-full sticky top-0 bg-pSnow text-black flex justify-between items-center '>
         <Sidebar />
         <h1 className='text-2xl font-bold p-3'>
-       سجل عناوين البريد الالكتروني
+       سجل   بيانات مدراء الادارات المكاتب بالبلديات (التحول الرقمي)  
         </h1>
        <div className=' flex items-center gap-1 justify-between p-3'>
         {userData.name}

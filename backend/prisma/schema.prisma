@@ -1,29 +1,74 @@
+// Datasource for SQLite
 datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
 
+// Generator for Prisma client
 generator client {
   provider = "prisma-client-js"
 }
 
+// Enum for Employee Status
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
 
-
+// Users model with relations and improved defaults
 model users {
-  id            Int       @id @default(autoincrement())
-  name          String    @default("Unknown") // Add a default value
-  username      String    @unique
-  departmentsId Json      @default("[]") // Add a default value (empty array for departments)
+  id            Int      @id @default(autoincrement())
+  name          String   @default("Unknown")
+  username      String   @unique
+  departmentsId Json     @default("[]") // Default empty array for departments
   password      String
-  permissions   Json      @default("[]")
-  createdAt     DateTime  @default(now())
+  permissions   Json     @default("[]") // Default empty array for permissions
+  createdAt     DateTime @default(now())
+  
+  // Relation to departments
+  departments   departments[] @relation("UserDepartments")
 }
 
-model departments{
-  departmentId Int @id @default(autoincrement())
+// Departments model with better relationships
+model departments {
+  departmentId Int      @id @default(autoincrement())
   department   String
+  createdAt    DateTime @default(now())
+
+  // Relation to users
+  users        users[]  @relation("UserDepartments")
+  employees    employees[] @relation("EmployeeDepartments")
 }
-model municipalities{
-  municipalityId Int @id 
+
+// Municipalities model
+model municipalities {
+  municipalityId Int      @id
   municipality   String
+  createdAt      DateTime @default(now())
+  
+  // Relation to employees
+  employees      employees[]
 }
+
+// Employees model with enums and relationships
+model employees {
+  employeeId     Int           @id @default(autoincrement())
+  engname        String
+  arname         String
+  departments    Json          @default("[]") // Default empty array for departments
+  municipalityId Int
+  email          String?       @default("Unknown") // Nullable email
+  phoneNumber    String?       @default("Unknown") // Nullable phone number
+  password       String
+  reported       Boolean
+  status         EmployeeStatus @default(PENDING) // Enum for status
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  municipality   municipalities @relation(fields: [municipalityId], references: [municipalityId])
+  departmentsRel departments[]   @relation("EmployeeDepartments")
+}
+

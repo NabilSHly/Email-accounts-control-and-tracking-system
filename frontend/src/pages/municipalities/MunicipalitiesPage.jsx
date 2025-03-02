@@ -7,6 +7,7 @@ import { PlusCircle, Search, Edit, Trash2 } from "lucide-react";
 import AddMunForm from "./AddMunForm"; // Ensure the AddMunForm is properly implemented
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import EditMunForm from "./EditMunForm"; // Import the new EditMunForm component
 
 export default function MunicipalitiesPage() {
   const [municipalities, setMunicipalities] = useState([]);
@@ -62,8 +63,10 @@ console.log("x",response);
     return typeof municipality.municipality === 'string' && 
     municipality.municipality.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
   const handleAddMunicipality = async (values) => {
-    if (!values.name) {
+    
+    if (!values.name & values.id) {
       setError("Municipality name is required.");
       return;
     }
@@ -80,7 +83,10 @@ console.log("x",response);
 
       const response = await axios.post(
         "http://localhost:3000/municipalities",
-        { name: values.name },
+        { municipality: values.name,
+          municipalityId: values.id
+          
+         },
         {
           headers: {
             "Content-Type": "application/json",
@@ -108,6 +114,7 @@ console.log("x",response);
       setError("Municipality name is required.");
       return;
     }
+console.log(values);
 
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -120,7 +127,8 @@ console.log("x",response);
 
       const response = await axios.put(
         `http://localhost:3000/municipalities/${editingMunicipality.municipalityId}`,
-        { name: values.name },
+        { municipality: values.name,
+         },
         {
           headers: {
             "Content-Type": "application/json",
@@ -191,6 +199,7 @@ console.log("x",response);
             <AddMunForm
               onSubmit={handleAddMunicipality}
               onCancel={() => setIsAddDialogOpen(false)}
+              initialData={{ name: "", id: undefined }}
             />
           </DialogContent>
         </Dialog>
@@ -254,13 +263,13 @@ console.log("x",response);
             <DialogDescription>تعديل اسم البلدية.</DialogDescription>
           </DialogHeader>
           {editingMunicipality && (
-            <AddMunForm
+            <EditMunForm
               onSubmit={handleEditMunicipality}
               onCancel={() => {
                 setIsEditDialogOpen(false);
                 setEditingMunicipality(null);
               }}
-              initialData={{ name: editingMunicipality.name }}
+              name={ editingMunicipality.municipality }
             />
           )}
         </DialogContent>
