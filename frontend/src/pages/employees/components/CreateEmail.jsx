@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
+
 import {
   Form,
   FormControl,
@@ -28,141 +27,83 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   MultiSelector,
   MultiSelectorContent,
   MultiSelectorInput,
   MultiSelectorItem,
   MultiSelectorList,
-  MultiSelectorTrigger
-} from "@/components/ui/multi-select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Loader2, Plus, RefreshCw } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+  MultiSelectorTrigger,
+} from '@/components/ui/multi-select';
+import { toast } from 'sonner';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Loader2, Plus, RefreshCw } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-// For development, use mock data
-import { mockDepartments, mockMunicipalities } from '@/data/mockData';
-
-// Form validation schema for creating a new email
+/* ====================
+   Validation Schemas
+==================== */
 const newEmailSchema = z.object({
-  engFirstName: z.string().min(2, { message: "First name must be at least 2 characters." }),
+  engFirstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
   engFatherName: z.string().min(2, { message: "Father's name must be at least 2 characters." }),
-  engLastName: z.string().min(2, { message: "Last name must be at least 2 characters." }),
-  arFirstName: z.string().min(2, { message: "First name must be at least 2 characters." }),
-  arMiddleName: z.string().min(2, { message: "Middle name must be at least 2 characters." }),
-  arLastName: z.string().min(2, { message: "Last name must be at least 2 characters." }),
-  departments: z.array(z.number()).min(1, { message: "Select at least one department." }),
-  municipalityId: z.number({ message: "Municipality is required." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  phoneNumber: z.string()
-    .min(10, { message: "Phone number must be at least 10 digits." })
-    .regex(/^[0-9]+$/, { message: "Phone number must contain only digits." })
+  engLastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
+  arFirstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
+  arMiddleName: z.string().min(2, { message: 'Middle name must be at least 2 characters.' }),
+  arLastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
+  departments: z.array(z.number()).min(1, { message: 'Select at least one department.' }),
+  municipalityId: z.number({ message: 'Municipality is required.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  phoneNumber: z
+    .string()
+    .min(10, { message: 'Phone number must be at least 10 digits.' })
+    .regex(/^[0-9]+$/, { message: 'Phone number must contain only digits.' })
     .optional(),
   notes: z.string().optional(),
 });
 
-// Form validation schema for approving a pending request
 const approveRequestSchema = z.object({
-  requestId: z.number({ message: "Please select a request to approve." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  requestId: z.number({ message: 'Please select a request to approve.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
-export default function CreateEmail() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("new");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [departments, setDepartments] = useState(mockDepartments);
-  const [municipalities, setMunicipalities] = useState(mockMunicipalities);
+/* ====================
+   Custom Hook for Data Fetching
+==================== */
+const useFetchData = () => {
+  const [departments, setDepartments] = useState([]);
+  const [municipalities, setMunicipalities] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  // Initialize forms
-  const newEmailForm = useForm({
-    resolver: zodResolver(newEmailSchema),
-    defaultValues: {
-      engFirstName: "",
-      engFatherName: "",
-      engLastName: "",
-      arFirstName: "",
-      arMiddleName: "",
-      arLastName: "",
-      departments: [],
-      municipalityId: undefined,
-      email: "",
-      password: "",
-      phoneNumber: "",
-      notes: "",
-    }
-  });
-
-  const approveRequestForm = useForm({
-    resolver: zodResolver(approveRequestSchema),
-    defaultValues: {
-      requestId: undefined,
-      email: "",
-      password: "",
-    }
-  });
-
-  // Fetch departments, municipalities, and pending requests
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (process.env.NODE_ENV === 'production') {
           const [deptResponse, muniResponse, pendingResponse] = await Promise.all([
-            axios.get(`${process.env.REACT_APP_API_URL}/departments`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
+            axios.get(`http://localhost:3000/departments`, {
+              headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             }),
-            axios.get(`${process.env.REACT_APP_API_URL}/municipalities`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
+            axios.get(`http://localhost:3000/municipalities`, {
+              headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             }),
-            axios.get(`${process.env.REACT_APP_API_URL}/employees/pending`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-            })
+            axios.get(`http://localhost:3000/employees/pending`, {
+              headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+            }),
           ]);
           
           setDepartments(deptResponse.data);
           setMunicipalities(muniResponse.data);
           setPendingRequests(pendingResponse.data);
-        } else {
-          // Mock pending requests for development
-          setPendingRequests([
-            { 
-              employeeId: 1, 
-              engname: "John Smith", 
-              arname: "جون سميث", 
-              departments: [1, 2], 
-              municipalityId: 1,
-              phoneNumber: "0501234567",
-              status: "PENDING",
-              createdAt: new Date().toISOString()
-            },
-            { 
-              employeeId: 2, 
-              engname: "Sarah Johnson", 
-              arname: "سارة جونسون", 
-              departments: [3], 
-              municipalityId: 2,
-              phoneNumber: "0509876543",
-              status: "PENDING",
-              createdAt: new Date(Date.now() - 86400000).toISOString()
-            }
-          ]);
-        }
+          
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error("Failed to load data", {
-          description: "Could not load required data. Please try refreshing."
+        toast.error('Failed to load data', {
+          description: 'Could not load required data. Please try refreshing.',
         });
       }
     };
@@ -170,115 +111,492 @@ export default function CreateEmail() {
     fetchData();
   }, []);
 
-  // Handle request selection
-  const handleRequestSelect = (request) => {
-    setSelectedRequest(request);
-    approveRequestForm.setValue("requestId", request.employeeId);
-    
-    // Generate email suggestion based on name
-    const nameParts = request.engname.split(' ');
-    if (nameParts.length >= 2) {
-      const suggestedEmail = `${nameParts[0].toLowerCase()}.${nameParts[nameParts.length-1].toLowerCase()}@example.com`;
-      approveRequestForm.setValue("email", suggestedEmail);
-    }
-    
-    // Generate random password
-    const randomPassword = Math.random().toString(36).slice(-10);
-    approveRequestForm.setValue("password", randomPassword);
-  };
+  return { departments, municipalities, pendingRequests, setPendingRequests };
+};
+console.log();
 
-  // Handle new email submission
-  const onSubmitNewEmail = async (data) => {
+/* ====================
+   Helper Functions
+==================== */
+const generateEmail = (engname) => {
+  const nameParts = engname.split(' ');
+  if (nameParts.length >= 2) {
+    return `${nameParts[0].toLowerCase()}.${nameParts[nameParts.length - 1].toLowerCase()}@example.com`;
+  }
+  return '';
+};
+
+const generateRandomPassword = () => Math.random().toString(36).slice(-10);
+
+/* ====================
+   New Email Form Component
+==================== */
+const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
+  const form = useForm({
+    resolver: zodResolver(newEmailSchema),
+    defaultValues: {
+      engFirstName: '',
+      engFatherName: '',
+      engLastName: '',
+      arFirstName: '',
+      arMiddleName: '',
+      arLastName: '',
+      departments: [],
+      municipalityId: undefined,
+      email: '',
+      password: '',
+      phoneNumber: '',
+      notes: '',
+    },
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredMunicipalities = useMemo(() => {
+    if (!searchTerm) return municipalities;
+    return municipalities.filter((muni) =>
+      muni.municipality.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [municipalities, searchTerm]);
+  
+
+  const onSubmit = async (data) => {
     setIsSubmitting(true);
-    
     try {
+      console.log(data);
       const fullEngName = `${data.engFirstName} ${data.engFatherName} ${data.engLastName}`;
       const fullArName = `${data.arFirstName} ${data.arMiddleName} ${data.arLastName}`;
+      const payload = {
+        engname: fullEngName,
+        arname: fullArName,
+        departments: data.departments,
+        municipalityId: data.municipalityId,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+        notes: data.notes,
+      };
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log("Creating new email:", {
-          ...data,
-          engname: fullEngName,
-          arname: fullArName
+
+        await axios.post(`http://localhost:3000/employees/admin`, payload, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         });
-      } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/employees/admin`, {
-          engname: fullEngName,
-          arname: fullArName,
-          departments: data.departments,
-          municipalityId: data.municipalityId,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          password: data.password,
-          notes: data.notes
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-        });
-      }
-      
-      toast.success("Email Created", {
-        description: "New employee email account has been created successfully.",
-        duration: 5000
+      toast.success('Email Created', {
+        description: 'New employee email account has been created successfully.',
+        duration: 5000,
       });
-      
-      // Reset form
-      newEmailForm.reset();
-      
+      form.reset();
+      onSuccess && onSuccess();
     } catch (error) {
       console.error('Error creating email:', error);
-      toast.error("Creation Failed", {
-        description: error.response?.data?.message || "An error occurred while creating the email account."
+      toast.error('Creation Failed', {
+        description:
+          error.response?.data?.message ||
+          'An error occurred while creating the email account.',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Handle approve request submission
-  const onSubmitApproveRequest = async (data) => {
-    setIsSubmitting(true);
-    
-    try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log("Approving request:", data);
-      } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/employees/${data.requestId}/approve`, {
-          email: data.email,
-          password: data.password
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
-        });
-      }
-      
-      toast.success("Request Approved", {
-        description: "Email account has been created and the request has been approved.",
-        duration: 5000
-      });
-      
-      // Remove the approved request from the list
-      setPendingRequests(pendingRequests.filter(req => req.employeeId !== data.requestId));
-      setSelectedRequest(null);
-      approveRequestForm.reset();
-      
-    } catch (error) {
-      console.error('Error approving request:', error);
-      toast.error("Approval Failed", {
-        description: error.response?.data?.message || "An error occurred while approving the request."
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Filter municipalities based on search term
-  const filteredMunicipalities = searchTerm
-    ? municipalities.filter(muni => 
-        muni.municipality.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : municipalities;
 
   return (
-    <div className=" w-3/4 mx-auto p-4">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* English Name Fields */}
+        <div className="flex gap-6">
+          <FormField
+            control={form.control}
+            name="engFirstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>الاسم الاول بالانجليزي</FormLabel>
+                <FormControl>
+                  <Input placeholder="First Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="engFatherName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>اسم الاب بالانجليزي</FormLabel>
+                <FormControl>
+                  <Input placeholder="Father's Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="engLastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>اللقب بالانجليزي</FormLabel>
+                <FormControl>
+                  <Input placeholder="Last Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Arabic Name Fields */}
+        <div className="flex gap-6">
+          <FormField
+            control={form.control}
+            name="arFirstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>الاسم الأول</FormLabel>
+                <FormControl>
+                  <Input placeholder="الاسم الأول" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="arMiddleName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>اسم الأب</FormLabel>
+                <FormControl>
+                  <Input placeholder="اسم الأب" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="arLastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>اللقب</FormLabel>
+                <FormControl>
+                  <Input placeholder="اللقب" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Email & Password */}
+        <div className="flex gap-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>البريد الإلكتروني</FormLabel>
+                <FormControl>
+                  <Input placeholder="example@domain.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input placeholder="Password" type="text" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Phone Number */}
+        <FormField
+          control={form.control}
+          name="phoneNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>رقم الهاتف</FormLabel>
+              <FormControl>
+                <Input placeholder="05xxxxxxxx" type="tel" pattern="[0-9]*" {...field} />
+              </FormControl>
+              <FormDescription>رقم الهاتف للتواصل مع الموظف</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Municipality */}
+        <FormField
+          control={form.control}
+          name="municipalityId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>البلدية</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(Number(value))}
+                value={field.value?.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر البلدية" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <div className="sticky top-0 p-2 bg-background">
+                    <Input
+                      placeholder="ابحث عن البلدية..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="mb-2"
+                    />
+                  </div>
+                  {filteredMunicipalities.map((muni) => (
+                    <SelectItem key={muni.municipalityId} value={muni.municipalityId.toString()}>
+                      {muni.municipality}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Departments */}
+        <FormField
+          control={form.control}
+          name="departments"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>المكاتب/ الإدارات</FormLabel>
+              <FormDescription>اختر الإدارات التي ينتمي إليها الموظف</FormDescription>
+              <FormControl>
+                <MultiSelector
+                  values={field.value.map((id) => id.toString())}
+                  onValuesChange={(values) => field.onChange(values.map((v) => Number(v)))}
+                  loop
+                >
+                  <MultiSelectorTrigger>
+                    <MultiSelectorInput placeholder="اختر الاقسام" />
+                  </MultiSelectorTrigger>
+                  <MultiSelectorContent>
+                    <MultiSelectorList>
+                      {departments.map((dept) => (
+                        <MultiSelectorItem
+                          key={dept.departmentId}
+                          value={dept.departmentId.toString()}
+                        >
+                          {dept.department}
+                        </MultiSelectorItem>
+                      ))}
+                    </MultiSelectorList>
+                  </MultiSelectorContent>
+                </MultiSelector>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Notes */}
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ملاحظات</FormLabel>
+              <FormControl>
+                <Textarea placeholder="اي معلومات اضافية" className="resize-none" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full" disabled={isSubmitting || !form.formState.isValid}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              جاري إنشاء البريد...
+            </>
+          ) : (
+            'إنشاء البريد الإلكتروني'
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+/* ====================
+   Approve Request Form Component
+==================== */
+const ApproveRequestForm = ({ selectedRequest, departments, municipalities, onRequestApproved }) => {
+  const form = useForm({
+    resolver: zodResolver(approveRequestSchema),
+    defaultValues: {
+      requestId: selectedRequest?.employeeId || undefined,
+      email: selectedRequest ? generateEmail(selectedRequest.engname) : '',
+      password: selectedRequest ? generateRandomPassword() : '',
+    },
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+        await axios.post(
+          `http://localhost:3000/employees/${data.requestId}/approve`,
+          {
+            email: data.email,
+            password: data.password,
+          },
+          { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
+        );
+      toast.success('Request Approved', {
+        description: 'Email account has been created and the request has been approved.',
+        duration: 5000,
+      });
+      onRequestApproved(data.requestId);
+      form.reset();
+    } catch (error) {
+      console.error('Error approving request:', error);
+      toast.error('Approval Failed', {
+        description:
+          error.response?.data?.message ||
+          'An error occurred while approving the request.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Hidden Request ID */}
+        <FormField
+          control={form.control}
+          name="requestId"
+          render={({ field }) => (
+            <FormItem className="hidden">
+              <FormControl>
+                <Input type="hidden" {...field} value={selectedRequest.employeeId} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {/* Request Details */}
+        <div className="bg-muted p-4 rounded-md mb-4">
+          <h3 className="font-medium mb-2">تفاصيل الطلب</h3>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              الاسم بالإنجليزية:{' '}
+              <span className="font-medium">{selectedRequest.engname}</span>
+            </div>
+            <div>
+              الاسم بالعربية:{' '}
+              <span className="font-medium">{selectedRequest.arname}</span>
+            </div>
+            <div>
+              رقم الهاتف:{' '}
+              <span className="font-medium">{selectedRequest.phoneNumber}</span>
+            </div>
+            <div>
+              البلدية:{' '}
+              <span className="font-medium">
+                {municipalities.find((m) => m.municipalityId === selectedRequest.municipalityId)
+                  ?.municipality || 'غير معروف'}
+              </span>
+            </div>
+            <div className="col-span-2">
+              الإدارات:{' '}
+              <span className="font-medium">
+                {selectedRequest.departments
+                  .map((deptId) => departments.find((d) => d.departmentId === deptId)?.department)
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Email & Password Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>البريد الإلكتروني</FormLabel>
+                <FormControl>
+                  <Input placeholder="example@domain.com" {...field} />
+                </FormControl>
+                <FormDescription>أدخل عنوان البريد الإلكتروني للموظف</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input placeholder="Password" type="text" {...field} />
+                </FormControl>
+                <FormDescription>الكلمة الأولية للحساب</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isSubmitting || !form.formState.isValid}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              جاري الموافقة...
+            </>
+          ) : (
+            'الموافقة وإنشاء البريد الإلكتروني'
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+
+export default function CreateEmail() {
+  const [activeTab, setActiveTab] = useState('new');
+  const { departments, municipalities, pendingRequests, setPendingRequests } = useFetchData();
+  console.log({ departments, municipalities, pendingRequests, setPendingRequests });
+  
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const handleRequestSelect = useCallback((request) => {
+    setSelectedRequest(request);
+  }, []);
+
+  const handleRequestApproved = (approvedId) => {
+    setPendingRequests((prev) => prev.filter((req) => req.employeeId !== approvedId));
+    setSelectedRequest(null);
+  };
+
+  return (
+    <div className="w-3/4 mx-auto p-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -288,7 +606,7 @@ export default function CreateEmail() {
                 إنشاء بريد إلكتروني جديد للموظفين أو الموافقة على طلبات البريد المعلقة
               </CardDescription>
             </div>
-            <Badge variant={activeTab === "new" ? "default" : "outline"} className="ml-2">
+            <Badge variant={activeTab === 'new' ? 'default' : 'outline'} className="ml-2">
               {pendingRequests.length} طلب معلق
             </Badge>
           </div>
@@ -305,268 +623,17 @@ export default function CreateEmail() {
                 الموافقة على الطلبات المعلقة
               </TabsTrigger>
             </TabsList>
-            
-            {/* Create New Email Tab */}
+
+            {/* New Email Tab */}
             <TabsContent value="new">
-              <Form {...newEmailForm}>
-                <form onSubmit={newEmailForm.handleSubmit(onSubmitNewEmail)} className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    {/* English Name */}
-                    <div className="flex gap-6">
-                      <FormField
-                        control={newEmailForm.control}
-                        name="engFirstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>الاسم الاول بالانجليزي</FormLabel>
-                            <FormControl>
-                              <Input placeholder="First Name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={newEmailForm.control}
-                        name="engFatherName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>اسم الاب بالانجليزي</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Father's Name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={newEmailForm.control}
-                        name="engLastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>اللقب بالانجليزي</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Last Name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    {/* Arabic Name */}
-                    <div className="flex gap-6">
-                      <FormField
-                        control={newEmailForm.control}
-                        name="arFirstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>الاسم الأول</FormLabel>
-                            <FormControl>
-                              <Input placeholder="الاسم الأول" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={newEmailForm.control}
-                        name="arMiddleName" 
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>اسم الأب</FormLabel>
-                            <FormControl>
-                              <Input placeholder="اسم الأب" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={newEmailForm.control}
-                        name="arLastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>اللقب</FormLabel>
-                            <FormControl>
-                              <Input placeholder="اللقب" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Email and Password */}
-                    <div className="flex gap-6">
-                      <FormField
-                        control={newEmailForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormLabel>البريد الإلكتروني</FormLabel>
-                            <FormControl>
-                              <Input placeholder="example@domain.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={newEmailForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormLabel>كلمة المرور</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Password" type="text" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Phone Number */}
-                    <FormField
-                      control={newEmailForm.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>رقم الهاتف</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="05xxxxxxxx" 
-                              type="tel"
-                              pattern="[0-9]*"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            رقم الهاتف للتواصل مع الموظف
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Municipality */}
-                    <FormField
-                      control={newEmailForm.control}
-                      name="municipalityId" 
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>البلدية</FormLabel>
-                          <Select
-                            onValueChange={(value) => field.onChange(Number(value))}
-                            value={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="اختر البلدية" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <div className="sticky top-0 p-2 bg-background">
-                                <Input
-                                  placeholder="ابحث عن البلدية..."
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  className="mb-2"
-                                />
-                              </div>
-                              {filteredMunicipalities.map((muni) => (
-                                <SelectItem
-                                  key={muni.municipalityId}
-                                  value={muni.municipalityId.toString()}
-                                >
-                                  {muni.municipality}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Departments */}
-                    <FormField
-                      control={newEmailForm.control}
-                      name="departments"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>المكاتب/ الإدارات</FormLabel>
-                          <FormDescription>
-                            اختر الإدارات التي ينتمي إليها الموظف
-                          </FormDescription>
-                          <FormControl>
-                            <MultiSelector
-                              values={field.value.map(id => id.toString())}
-                              onValuesChange={(values) => field.onChange(values.map(v => Number(v)))}
-                              loop
-                            >
-                              <MultiSelectorTrigger>
-                                <MultiSelectorInput placeholder="اختر الاقسام" />
-                              </MultiSelectorTrigger>
-                              <MultiSelectorContent>
-                                <MultiSelectorList>
-                                  {departments.map(dept => (
-                                    <MultiSelectorItem 
-                                      key={dept.departmentId} 
-                                      value={dept.departmentId.toString()}
-                                    >
-                                      {dept.department}
-                                    </MultiSelectorItem>
-                                  ))}
-                                </MultiSelectorList>
-                              </MultiSelectorContent>
-                            </MultiSelector>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Notes */}
-                    <FormField
-                      control={newEmailForm.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ملاحظات</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="اي معلومات اضافية"
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={isSubmitting || !newEmailForm.formState.isValid}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        جاري إنشاء البريد...
-                      </>
-                    ) : (
-                      "إنشاء البريد الإلكتروني"
-                    )}
-                  </Button>
-                </form>
-              </Form>
+              <NewEmailForm
+                departments={departments}
+                municipalities={municipalities}
+                onSuccess={() => setActiveTab('pending')}
+              />
             </TabsContent>
-            
-            {/* Approve Pending Requests Tab */}
+
+            {/* Pending Requests Tab */}
             <TabsContent value="pending">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Pending Requests List */}
@@ -580,7 +647,7 @@ export default function CreateEmail() {
                     ) : (
                       <div className="divide-y">
                         {pendingRequests.map((request) => (
-                          <div 
+                          <div
                             key={request.employeeId}
                             className={`p-4 cursor-pointer hover:bg-muted transition-colors ${
                               selectedRequest?.employeeId === request.employeeId ? 'bg-muted' : ''
@@ -590,9 +657,7 @@ export default function CreateEmail() {
                             <div className="font-medium">{request.engname}</div>
                             <div className="text-sm text-muted-foreground">{request.arname}</div>
                             <div className="text-xs mt-1 flex justify-between">
-                              <span>
-                                {new Date(request.createdAt).toLocaleDateString()}
-                              </span>
+                              <span>{new Date(request.createdAt).toLocaleDateString()}</span>
                               <Badge variant="outline" size="sm">
                                 {request.phoneNumber}
                               </Badge>
@@ -603,104 +668,23 @@ export default function CreateEmail() {
                     )}
                   </ScrollArea>
                 </div>
-                
-                {/* Approve Form */}
+
+                {/* Approve Request Form */}
                 <div className="md:col-span-2">
                   {selectedRequest ? (
-                    <Form {...approveRequestForm}>
-                      <form onSubmit={approveRequestForm.handleSubmit(onSubmitApproveRequest)} className="space-y-6">
-                        <div className="bg-muted p-4 rounded-md mb-4">
-                          <h3 className="font-medium mb-2">تفاصيل الطلب</h3>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div>الاسم بالإنجليزية: <span className="font-medium">{selectedRequest.engname}</span></div>
-                            <div>الاسم بالعربية: <span className="font-medium">{selectedRequest.arname}</span></div>
-                            <div>رقم الهاتف: <span className="font-medium">{selectedRequest.phoneNumber}</span></div>
-                            <div>
-                              البلدية: <span className="font-medium">
-                                {municipalities.find(m => m.municipalityId === selectedRequest.municipalityId)?.municipality || 'غير معروف'}
-                              </span>
-                            </div>
-                            <div className="col-span-2">
-                              الإدارات: <span className="font-medium">
-                                {selectedRequest.departments.map(deptId => 
-                                  departments.find(d => d.departmentId === deptId)?.department
-                                ).filter(Boolean).join(', ')}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <FormField
-                          control={approveRequestForm.control}
-                          name="requestId"
-                          render={({ field }) => (
-                            <FormItem className="hidden">
-                              <FormControl>
-                                <Input type="hidden" {...field} value={selectedRequest.employeeId} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={approveRequestForm.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>البريد الإلكتروني</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="example@domain.com" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                  أدخل عنوان البريد الإلكتروني للموظف
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={approveRequestForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>كلمة المرور</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Password" type="text" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                  كلمة المرور الأولية للحساب
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        <Button 
-                          type="submit" 
-                          className="w-full"
-                          disabled={isSubmitting || !approveRequestForm.formState.isValid}
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              جاري الموافقة...
-                            </>
-                          ) : (
-                            "الموافقة وإنشاء البريد الإلكتروني"
-                          )}
-                        </Button>
-                      </form>
-                    </Form>
+                    <ApproveRequestForm
+                      selectedRequest={selectedRequest}
+                      departments={departments}
+                      municipalities={municipalities}
+                      onRequestApproved={handleRequestApproved}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted-foreground border rounded-md">
                       <div className="mb-2">يرجى اختيار طلب من القائمة للموافقة عليه</div>
                       {pendingRequests.length === 0 && (
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setActiveTab("new")}
+                        <Button
+                          variant="outline"
+                          onClick={() => setActiveTab('new')}
                           className="mt-4"
                         >
                           إنشاء بريد إلكتروني جديد

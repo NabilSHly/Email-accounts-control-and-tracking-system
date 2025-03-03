@@ -24,8 +24,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronDown, Filter, Download, MessageSquare, Plus } from 'lucide-react';
-
+import { ChevronDown, Filter, Download } from 'lucide-react';
+import { Edit } from 'lucide-react';
+import { reportEmployee } from '@/services/api';
+import { EmployeeEditForm } from './EmployeeEditForm';
 // Simple helper functions
 const formatDepartments = (departmentIds, departmentsList) => {
   return departmentIds
@@ -69,7 +71,8 @@ https://apps.apple.com/us/app/microsoft-outlook/id951937596
 };
 
 // Function to open WhatsApp with the message
-const sendWhatsAppMessage = (employee) => {
+const sendWhatsAppMessage = async (employee) => {
+
   if (!employee.phoneNumber) {
     alert("No phone number available for this employee");
     return;
@@ -78,9 +81,21 @@ const sendWhatsAppMessage = (employee) => {
   // Format phone number (remove spaces, +, etc.)
   const phoneNumber = employee.phoneNumber.replace(/\s+/g, '').replace(/^\+/, '');
   const message = createWhatsAppMessage(employee);
-  
+  // Update reported status to true
+  try {
+    const response = await reportEmployee(employee.employeeId, { reported: true });
+
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  window.location.reload();
+
+    return response.data;
+  } catch (error) {
+    console.error('Error reporting employee:', error);
+    throw error;
+  }
+
   // Open WhatsApp web or app
-  window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  
 };
 
 // Simple helper function to get department name
@@ -183,6 +198,7 @@ export default function EmployeesTable({ data, departments, municipalities, sear
       cell: ({ row }) => {
         const employee = row.original;
         return (
+          <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -190,9 +206,17 @@ export default function EmployeesTable({ data, departments, municipalities, sear
             className="flex items-center gap-1"
             disabled={!employee.phoneNumber}
           >
-            <MessageSquare className="h-4 w-4" />
-            WhatsApp
+            <img src="./whatsapp-logo-4456.png" className="w-6 h-6" alt="" />
+            تبليغ
           </Button>
+          <EmployeeEditForm 
+          employee={employee}
+          departments={departments}
+          municipalities={municipalities}
+          // onSuccess={handleSuccess}
+        />
+        </div>
+          
         );
       },
     },

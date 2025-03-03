@@ -262,7 +262,24 @@ const updateEmployee = async (req, res, next) => {
     next(error);
   }
 };
+const reportEmployee = async (req, res, next) => {
+  const { id } = req.params;
+  
+  try {
+    // Ensure departments is an array
+    
+    const employee = await prisma.employees.update({
+      where: { employeeId: parseInt(id) },
+      data: {
+        reported: true,
+      },
+    });
 
+    res.json({ success: true, employee });
+  } catch (error) {
+    next(error);
+  }
+};
 // Delete an employee
 const deleteEmployee = async (req, res, next) => {
   const { id } = req.params;
@@ -357,5 +374,6 @@ module.exports = {
   deleteEmployee,
   updateEmployeeStatus,
   getEmployeesByDepartment,
-  getEmployeesByMunicipality
+  getEmployeesByMunicipality,
+  reportEmployee
 };

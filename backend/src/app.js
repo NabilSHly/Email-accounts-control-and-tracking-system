@@ -80,8 +80,8 @@ app.put('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), emp
 app.delete('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.deleteEmployee);
 app.patch('/employees/:id/status', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.updateEmployeeStatus);
 app.post('/employees/:id/approve', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.approveAndCreateEmail);
-
-// Employee routes - Department and Municipality filtering
+app.put('/employees/:id/report', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.reportEmployee);
+  // Employee routes - Department and Municipality filtering
 app.get('/employees/department/:departmentId', rbac('ADMIN'), employeesController.getEmployeesByDepartment);
 app.get('/employees/municipality/:municipalityId', rbac('ADMIN'), employeesController.getEmployeesByMunicipality);
 
