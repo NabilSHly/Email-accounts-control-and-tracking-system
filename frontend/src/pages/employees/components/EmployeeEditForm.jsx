@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,9 +9,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  MultiSelector,
+  MultiSelectorContent,
+  MultiSelectorInput,
+  MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
+} from "@/components/ui/multi-select";
+import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,29 +33,45 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Edit } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 export function EmployeeEditForm({ employee, departments, municipalities, onSuccess }) {
   const form = useForm({
     defaultValues: {
-      engname: employee.engname,
-      arname: employee.arname,
-      email: employee.email,
-      phoneNumber: employee.phoneNumber,
-      municipalityId: employee.municipalityId,
-      singleDepartmentId: employee.singleDepartmentId,
-    }
+      engname: "",
+      arname: "",
+      email: "",
+      phoneNumber: "",
+      departments: []  ,
+      municipalityId: "",
+      status: "ACTIVE",
+      reported: false,
+      notes: "",
+    },
   });
+
+useEffect(() => {
+  if (employee) {
+    form.reset({
+      engname: employee.engname || "",
+      arname: employee.arname || "",
+      email: employee.email || "",
+      phoneNumber: employee.phoneNumber || "",
+      departments: Array.isArray(employee.departments?.set)
+        ? employee.departments.set.map((dept) => dept)
+        : [], // Ensure departments is an array of department IDs or an empty array
+      municipalityId: employee.municipalityId ? String(employee.municipalityId) : "",
+    });
+  }
+}, [employee, form.reset]);
+
 
   const onSubmit = async (data) => {
     try {
-      // Call your API update endpoint here
-      const response = await updateEmployee(employee.employeeId, data);
-      onSuccess(response.data);
-      return true;
+      console.log("Updating employee:", data);
+      // await updateEmployee(employee.employeeId, data);
+      onSuccess(data);
     } catch (error) {
       console.error("Update failed:", error);
-      return false;
     }
   };
 
@@ -65,61 +90,39 @@ export function EmployeeEditForm({ employee, departments, municipalities, onSucc
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="engname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم بالإنجليزية</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {["engname", "arname"].map((name) => (
+                <FormField
+                  key={name}
+                  control={form.control}
+                  name={name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{name === "engname" ? "الاسم بالإنجليزية" : "الاسم بالعربية"}</FormLabel>
+                      <FormControl>
+                        <Input disabled {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
 
-              <FormField
-                control={form.control}
-                name="arname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم بالعربية</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>البريد الإلكتروني</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>رقم الهاتف</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {["email", "phoneNumber"].map((name) => (
+                <FormField
+                  key={name}
+                  control={form.control}
+                  name={name}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{name === "email" ? "البريد الإلكتروني" : "رقم الهاتف"}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
 
               <FormField
                 control={form.control}
@@ -134,10 +137,10 @@ export function EmployeeEditForm({ employee, departments, municipalities, onSucc
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {municipalities.map((municipality) => (
-                          <SelectItem 
+                        {municipalities?.map((municipality) => (
+                          <SelectItem
                             key={municipality.municipalityId}
-                            value={municipality.municipalityId}
+                            value={String(municipality.municipalityId || "")}
                           >
                             {municipality.municipality}
                           </SelectItem>
@@ -151,23 +154,53 @@ export function EmployeeEditForm({ employee, departments, municipalities, onSucc
 
               <FormField
                 control={form.control}
-                name="singleDepartmentId"
+                name="departments"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>القسم</FormLabel>
+                    <FormLabel>المكاتب/ الإدارات</FormLabel>
+                    <FormControl>
+                      <MultiSelector
+                        values={field.value.map(String)}
+                        onValuesChange={(values) => field.onChange(values.map(Number))}
+                        loop
+                      >
+                        <MultiSelectorTrigger>
+                          <MultiSelectorInput placeholder="اختر الاقسام" />
+                        </MultiSelectorTrigger>
+                        <MultiSelectorContent>
+                          <MultiSelectorList>
+                            {departments?.map((dept) => (
+                              <MultiSelectorItem
+                                key={dept.departmentId}
+                                value={String(dept.departmentId || "")}
+                              >
+                                {dept.department}
+                              </MultiSelectorItem>
+                            ))}
+                          </MultiSelectorList>
+                        </MultiSelectorContent>
+                      </MultiSelector>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الحالة</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر القسم" />
+                          <SelectValue placeholder="اختر الحالة" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {departments.map((department) => (
-                          <SelectItem 
-                            key={department.departmentId}
-                            value={department.departmentId}
-                          >
-                            {department.department}
+                        {statuses?.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -175,14 +208,12 @@ export function EmployeeEditForm({ employee, departments, municipalities, onSucc
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
+             
             </div>
-
             <div className="flex justify-end gap-4">
               <Button type="submit">حفظ التغييرات</Button>
-              <Button variant="outline" type="button">
-                إلغاء
-              </Button>
+              <Button variant="outline" type="button">إلغاء</Button>
             </div>
           </form>
         </Form>
