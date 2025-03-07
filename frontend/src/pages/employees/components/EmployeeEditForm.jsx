@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,44 +34,75 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
+import { toast } from "sonner";
+import { updateEmployee } from "@/services/api";
 
-export function EmployeeEditForm({ employee, departments, municipalities, onSuccess }) {
+// Define TypeScript interfaces
+
+
+// Define validation schema using zod
+const formSchema = z.object({
+  engname: z.string().min(1, "الاسم بالإنجليزية مطلوب"),
+  arname: z.string().min(1, "الاسم بالعربية مطلوب"),
+  email: z.string().email("بريد إلكتروني غير صالح"),
+  phoneNumber: z.string().min(10, "رقم الهاتف يجب أن يكون 10 أرقام"),
+  departments: z.array(z.number()).min(1, "اختر قسمًا واحدًا على الأقل"),
+  municipalityId: z.string().min(1, "البلدية مطلوبة"),
+  status: z.enum(["ACTIVE", "INACTIVE", "PENDING"]),
+  reported: z.enum(["true", "false"]),
+  notes: z.string().optional(),
+});
+
+
+export function EmployeeEditForm({
+  employee,
+  departments,
+  municipalities,
+  // onSuccess,
+}) {
   const form = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       engname: "",
       arname: "",
       email: "",
       phoneNumber: "",
-      departments: []  ,
+      departments: [],
       municipalityId: "",
       status: "ACTIVE",
-      reported: false,
+      reported: "false",
       notes: "",
     },
   });
 
-useEffect(() => {
-  if (employee) {
-    form.reset({
-      engname: employee.engname || "",
-      arname: employee.arname || "",
-      email: employee.email || "",
-      phoneNumber: employee.phoneNumber || "",
-      departments: Array.isArray(employee.departments?.set)
-        ? employee.departments.set.map((dept) => dept)
-        : [], // Ensure departments is an array of department IDs or an empty array
-      municipalityId: employee.municipalityId ? String(employee.municipalityId) : "",
-    });
-  }
-}, [employee, form.reset]);
-
+  useEffect(() => {
+    if (employee) {
+      form.reset({
+        engname: employee.engname || "",
+        arname: employee.arname || "",
+        email: employee.email || "",
+        phoneNumber: employee.phoneNumber || "",
+        departments: Array.isArray(employee.departments?.set)
+          ? employee.departments.set
+          : [],
+        municipalityId: employee.municipalityId
+          ? String(employee.municipalityId)
+          : "",
+        status: employee.status,
+        reported: employee.reported ? "true" : "false",
+        notes: employee.notes || "",
+      });
+    }
+  }, [employee, form]);
 
   const onSubmit = async (data) => {
     try {
       console.log("Updating employee:", data);
-      // await updateEmployee(employee.employeeId, data);
-      onSuccess(data);
+      await updateEmployee(employee.employeeId, data);
+      toast.success("تم تحديث بيانات الموظف بنجاح");
     } catch (error) {
       console.error("Update failed:", error);
     }
@@ -97,9 +130,13 @@ useEffect(() => {
                   name={name}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{name === "engname" ? "الاسم بالإنجليزية" : "الاسم بالعربية"}</FormLabel>
+                      <FormLabel>
+                        {name === "engname"
+                          ? "الاسم بالإنجليزية"
+                          : "الاسم بالعربية"}
+                      </FormLabel>
                       <FormControl>
-                        <Input disabled {...field} />
+                        <Input autoComplete="off" disabled {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -111,12 +148,14 @@ useEffect(() => {
                 <FormField
                   key={name}
                   control={form.control}
-                  name={name}
+                  name={name }
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{name === "email" ? "البريد الإلكتروني" : "رقم الهاتف"}</FormLabel>
+                      <FormLabel>
+                        {name === "email" ? "البريد الإلكتروني" : "رقم الهاتف"}
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input autoComplete="off" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -130,7 +169,10 @@ useEffect(() => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>البلدية</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="اختر البلدية" />
@@ -140,7 +182,7 @@ useEffect(() => {
                         {municipalities?.map((municipality) => (
                           <SelectItem
                             key={municipality.municipalityId}
-                            value={String(municipality.municipalityId || "")}
+                            value={String(municipality.municipalityId)}
                           >
                             {municipality.municipality}
                           </SelectItem>
@@ -161,18 +203,20 @@ useEffect(() => {
                     <FormControl>
                       <MultiSelector
                         values={field.value.map(String)}
-                        onValuesChange={(values) => field.onChange(values.map(Number))}
+                        onValuesChange={(values) =>
+                          field.onChange(values.map(Number))
+                        }
                         loop
                       >
                         <MultiSelectorTrigger>
-                          <MultiSelectorInput placeholder="اختر الاقسام" />
+                          <MultiSelectorInput  placeholder="اختر الاقسام" />
                         </MultiSelectorTrigger>
                         <MultiSelectorContent>
                           <MultiSelectorList>
                             {departments?.map((dept) => (
                               <MultiSelectorItem
                                 key={dept.departmentId}
-                                value={String(dept.departmentId || "")}
+                                value={String(dept.departmentId)}
                               >
                                 {dept.department}
                               </MultiSelectorItem>
@@ -185,35 +229,71 @@ useEffect(() => {
                   </FormItem>
                 )}
               />
-              {/* <FormField
+
+              <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="p-2 border rounded">
                     <FormLabel>الحالة</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="اختر الحالة" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {statuses?.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-2 items-end"
+                      >
+                        {[
+                          { value: "ACTIVE", label: "نشط", color: "text-green-600" },
+                          { value: "INACTIVE", label: "غير نشط", color: "text-red-600" },
+                          { value: "PENDING", label: "قيد الانتظار", color: "text-yellow-600" },
+                        ].map((item) => (
+                          <div key={item.value} className="flex items-center space-x-2">
+                            <Label className={`font-bold ${item.color}`} htmlFor={item.value}>
+                              {item.label}
+                            </Label>
+                            <RadioGroupItem value={item.value} id={item.value} />
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              /> */}
-             
+              />
+
+              <FormField
+                control={form.control}
+                name="reported"
+                render={({ field }) => (
+                  <FormItem className="space-y-3 p-2 border rounded">
+                    <FormLabel>تم الابلاغ</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-2 items-end"
+                      >
+                        {[
+                          { value: "true", label: "نعم" },
+                          { value: "false", label: "لا" },
+                        ].map((item) => (
+                          <div key={item.value} className="flex items-center space-x-2">
+                            <Label htmlFor={item.value}>{item.label}</Label>
+                            <RadioGroupItem value={item.value} id={item.value} />
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="flex justify-end gap-4">
               <Button type="submit">حفظ التغييرات</Button>
-              <Button variant="outline" type="button">إلغاء</Button>
+              <Button variant="outline" type="button">
+                إلغاء
+              </Button>
             </div>
           </form>
         </Form>

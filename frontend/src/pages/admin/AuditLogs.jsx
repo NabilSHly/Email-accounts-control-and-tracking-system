@@ -115,17 +115,19 @@ export default function AuditLogs() {
         }
       });
       
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/audit-logs`, {
+      const response = await axios.get(`http://localhost:3000/audit-logs`, {
         params,
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       
       setLogs(response.data.logs);
+      console.log(response);
+      
       setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error fetching audit logs:', error);
-      toast.error("Failed to load audit logs", {
-        description: error.response?.data?.error || "An error occurred while fetching the logs."
+      toast.error("فشل تحميل سجلات التدقيق", {
+        description: error.response?.data?.error || "حدث خطأ أثناء جلب السجلات."
       });
     } finally {
       setLoading(false);

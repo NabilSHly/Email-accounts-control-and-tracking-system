@@ -95,7 +95,7 @@ export default function UpdateUserForm({ userId }) {
         throw new Error("Failed to update user")
       }
 
-      toast.success("User updated successfully")
+      toast.success("تم تحديث المستخدم بنجاح")
     } catch (error) {
       console.error("Form submission error", error)
       toast.error("Failed to update the user. Please try again.")

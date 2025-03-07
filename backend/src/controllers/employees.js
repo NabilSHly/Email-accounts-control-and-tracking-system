@@ -240,7 +240,10 @@ const updateEmployee = async (req, res, next) => {
   try {
     // Ensure departments is an array
     const deptArray = Array.isArray(departments) ? departments : JSON.parse(departments || '[]');
-    
+
+    // Convert reported to a boolean
+    const isReported = reported === "true"; // Convert "true" to true and "false" to false
+
     const employee = await prisma.employees.update({
       where: { employeeId: parseInt(id) },
       data: {
@@ -251,7 +254,7 @@ const updateEmployee = async (req, res, next) => {
         email,
         phoneNumber,
         password, // Consider hashing the password before saving
-        reported,
+        reported: isReported, // Use the boolean value
         status,
         notes,
       },

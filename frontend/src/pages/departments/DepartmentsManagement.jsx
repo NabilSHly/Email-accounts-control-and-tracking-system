@@ -93,7 +93,7 @@ export default function DepartmentsManagement() {
       setDepartments(response.data);
     } catch (error) {
       console.error('Error fetching departments:', error);
-      toast.error("Failed to load departments", {
+      toast.error("فشل تحميل الأقسام", {
         description: error.response?.data?.error || "An error occurred while fetching departments."
       });
     } finally {
@@ -114,8 +114,8 @@ export default function DepartmentsManagement() {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       
-      toast.success("Department Added", {
-        description: "The department has been added successfully."
+      toast.success("تمت إضافة القسم", {
+        description: "تمت إضافة القسم بنجاح."
       });
       
       // Add to local state
@@ -146,8 +146,8 @@ export default function DepartmentsManagement() {
         }
       );
       
-      toast.success("Department Updated", {
-        description: "The department has been updated successfully."
+      toast.success("تم تحديث القسم", {
+        description: "تم تحديث القسم بنجاح."
       });
       
       // Update local state
@@ -178,8 +178,8 @@ export default function DepartmentsManagement() {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       
-      toast.success("Department Deleted", {
-        description: "The department has been deleted successfully."
+      toast.success("تم حذف القسم", {
+        description: "تم حذف القسم بنجاح."
       });
       
       // Update local state

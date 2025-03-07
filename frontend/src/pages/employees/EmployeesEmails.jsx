@@ -61,28 +61,27 @@ console.log([employeesData, departmentsData, municipalitiesData]);
   // Expand employees data to have one row per department
   const expandedEmployees = useMemo(() => {
     return employees.flatMap(employee => {
-      // If employee has no departments, return single row
-      if (!employee.departments || employee.departments.length === 0) {
+      // Handle cases where employee.departments is an object with a "set" array
+      const departments = Array.isArray(employee.departments?.set) ? employee.departments.set : [];
+  
+      // If no departments, return a single row with null for department ID
+      if (departments.length === 0) {
         return [{
           ...employee,
           singleDepartmentId: null,
           rowId: `${employee.employeeId}-null` // Unique row ID
         }];
       }
-      
+  
       // Create one row per department
-      return Array.isArray(employee.departments) ? employee.departments.map(deptId => ({
+      return departments.map(deptId => ({
         ...employee,
         singleDepartmentId: deptId, // Store the single department ID
         rowId: `${employee.employeeId}-${deptId}` // Unique row ID
-      })) : [{
-        ...employee,
-        singleDepartmentId: null,
-        rowId: `${employee.employeeId}-null` // Unique row ID
-      }];
+      }));
     });
   }, [employees]);
-
+  
   // Add type checking for filter values
   const filteredData = useMemo(() => {
     return expandedEmployees.filter(emp => {

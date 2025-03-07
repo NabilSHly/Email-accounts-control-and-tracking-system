@@ -52,8 +52,8 @@ export default function Dashboard() {
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError("Failed to load dashboard data. Please refresh the page.");
-        toast.error("Failed to load dashboard data", {
-          description: "Could not load dashboard statistics and activity. Please try refreshing."
+        toast.error("فشل تحميل بيانات  ", {
+          description: "تعذر تحميل إحصائيات لوحة المعلومات والنشاط. يرجى محاولة التحديث."
         });
       } finally {
         setLoading(false);

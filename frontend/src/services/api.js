@@ -71,6 +71,15 @@ export const reportEmployee = async (employeeId) => {
     throw error;
   }
 }
+export const updateEmployee = async (employeeId, updatedData) => {
+  try {
+    const response = await api.put(`/employees/${employeeId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    throw error;
+  }
+};
 // Auth validation
 export const validateToken = () => {
   const token = localStorage.getItem('authToken');

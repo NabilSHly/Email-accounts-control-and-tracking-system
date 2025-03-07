@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import HeaderMenu from "@/components/HeaderMenu";
-
+import { Toaster } from "@/components/ui/sonner";
 const Layout = () => {
   return (
     <div className=" h-full">
@@ -14,7 +14,7 @@ const Layout = () => {
         <Outlet  />
         
       </main>
-
+      <Toaster />
      
     </div>
   </div>

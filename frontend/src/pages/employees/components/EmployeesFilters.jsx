@@ -53,7 +53,7 @@ export default function EmployeesFilters({ filters, setFilters, departments, mun
               <SelectValue placeholder="Department" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_DEPARTMENTS}>All Departments</SelectItem>
+              <SelectItem value={ALL_DEPARTMENTS}> كل الأقسام</SelectItem>
               {departments.map(dept => (
                 <SelectItem key={dept.departmentId} value={dept.departmentId.toString()}>
                   {dept.department}
@@ -72,7 +72,7 @@ export default function EmployeesFilters({ filters, setFilters, departments, mun
               <SelectValue placeholder="Municipality" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_MUNICIPALITIES}>All Municipalities</SelectItem>
+              <SelectItem value={ALL_MUNICIPALITIES}> كل البلديات</SelectItem>
               {municipalities.map(muni => (
                 <SelectItem key={muni.municipalityId} value={muni.municipalityId.toString()}>
                   {muni.municipality}
@@ -91,15 +91,15 @@ export default function EmployeesFilters({ filters, setFilters, departments, mun
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_STATUSES}>All Statuses</SelectItem>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="INACTIVE">Inactive</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value={ALL_STATUSES}>كل الحالات</SelectItem>
+              <SelectItem value="ACTIVE">نشط</SelectItem>
+              <SelectItem value="INACTIVE"> غير نشط </SelectItem>
+              <SelectItem value="PENDING"> قيد المراجعة</SelectItem>
             </SelectContent>
           </Select>
           </div>
           <div className='flex items-center justify-center gap-1'>
-          <Label className="">تم الابلاغ : </Label>
+          <Label className=""> الابلاغ : </Label>
           <Select 
             value={reported || ALL_REPORTED} 
             onValueChange={value => updateFilter('reported', value === ALL_REPORTED ? '' : value)}
@@ -108,9 +108,9 @@ export default function EmployeesFilters({ filters, setFilters, departments, mun
               <SelectValue placeholder="Reported" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_REPORTED}>All</SelectItem>
-              <SelectItem value="true">Reported</SelectItem>
-              <SelectItem value="false">Not Reported</SelectItem>
+              <SelectItem value={ALL_REPORTED}>كل </SelectItem>
+              <SelectItem value="true">تم التواصل معه</SelectItem>
+              <SelectItem value="false"> لم يتم التواصل معه</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -113,7 +113,7 @@ const useFetchData = () => {
 
   return { departments, municipalities, pendingRequests, setPendingRequests };
 };
-console.log();
+
 
 /* ====================
    Helper Functions
@@ -181,8 +181,8 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
         await axios.post(`http://localhost:3000/employees/admin`, payload, {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         });
-      toast.success('Email Created', {
-        description: 'New employee email account has been created successfully.',
+      toast.success('تم إنشاء البريد الإلكتروني', {
+        description: 'تم إنشاء حساب البريد الإلكتروني الجديد للموظف بنجاح.',
         duration: 5000,
       });
       form.reset();
@@ -462,8 +462,8 @@ const ApproveRequestForm = ({ selectedRequest, departments, municipalities, onRe
           },
           { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
         );
-      toast.success('Request Approved', {
-        description: 'Email account has been created and the request has been approved.',
+      toast.success('تمت الموافقة على الطلب', {
+        description: 'تم إنشاء حساب البريد الإلكتروني وتمت الموافقة على الطلب.',
         duration: 5000,
       });
       onRequestApproved(data.requestId);
