@@ -130,42 +130,53 @@ export default function RequestEmail() {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-
+  
     try {
-        console.log("Form data:", data);
-        // const response = await axios.post(
-        //   `${process.env.REACT_APP_API_URL}/employees/request`,
-        //   {
-        //     ...data,
-        //     engname: `${data.engFirstName} ${data.engFatherName} ${data.engLastName}`,
-        //     arname: `${data.arFirstName} ${data.arMiddleName} ${data.arLastName}`,
-        //   }
-        // );
-
+      console.log("Form data:", data);
+  
+      // Prepare the data for the request
+      const response = await axios.post(
+        `http://localhost:3000/employees/request`,
+        { 
+          ...data,
+          engname: `${data.engFirstName} ${data.engFatherName} ${data.engLastName}`,
+          arname: `${data.arFirstName} ${data.arMiddleName} ${data.arLastName}`,
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+          }
+        }
+      );
+      
+  
+      // Show success toast
       toast.success("تم تقديم الطلب", {
-        description:
-          "لقد تم تقديم طلب البريد الإلكتروني   بنجاح وهو في انتظار الموافقة.",
+        description: "لقد تم تقديم طلب البريد الإلكتروني بنجاح وهو في انتظار الموافقة.",
         duration: 5000,
       });
-
+  
       // Clear form and redirect
       form.reset();
       setTimeout(() => {
+        // Uncomment and use navigate if needed
         // navigate('/dashboard', {
         //   state: { message: 'Request submitted successfully' }
         // });
       }, 2000);
+      
     } catch (error) {
       console.error("Error submitting request:", error);
+  
+      // Display a more comprehensive error message
       toast.error("Submission Failed", {
-        description:
-          error.response?.data?.message ||
-          "An error occurred while submitting your request. Please try again.",
+        description: error.response?.data?.message || "An error occurred while submitting your request. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   const filteredMunicipalities = searchTerm
     ? municipalities.filter((muni) =>

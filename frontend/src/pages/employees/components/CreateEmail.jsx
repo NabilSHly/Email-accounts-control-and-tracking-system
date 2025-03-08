@@ -121,12 +121,26 @@ const useFetchData = () => {
 const generateEmail = (engname) => {
   const nameParts = engname.split(' ');
   if (nameParts.length >= 2) {
-    return `${nameParts[0].toLowerCase()}.${nameParts[nameParts.length - 1].toLowerCase()}@example.com`;
+    return `${nameParts[0].toLowerCase()}.${nameParts[nameParts.length - 1].toLowerCase()}@mun.lgm.gov.ly`;
   }
   return '';
 };
 
-const generateRandomPassword = () => Math.random().toString(36).slice(-10);
+const generateRandomPassword = (engname) => {
+  const nameParts = engname.split(' ');
+  if (nameParts.length >= 2) {
+    const firstName = nameParts[0];
+    const lastName = nameParts[0];
+
+    // Extracting first 2 letters of the first and last name and formatting
+    const firstPart = firstName.slice(0, 2).toUpperCase();
+    const lastPart = lastName.slice(0, 2).toLowerCase();
+
+    // Returning the password in the format you described
+    return `${firstPart}@2023${lastPart}`;
+  }
+  return '';  // Return an empty string if the name doesn't meet the criteria
+};
 
 /* ====================
    New Email Form Component
@@ -446,10 +460,11 @@ const ApproveRequestForm = ({ selectedRequest, departments, municipalities, onRe
     defaultValues: {
       requestId: selectedRequest?.employeeId || undefined,
       email: selectedRequest ? generateEmail(selectedRequest.engname) : '',
-      password: selectedRequest ? generateRandomPassword() : '',
+      password: selectedRequest ? generateRandomPassword(selectedRequest.engname) : '',
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+console.log(selectedRequest,"dd");
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -522,10 +537,10 @@ const ApproveRequestForm = ({ selectedRequest, departments, municipalities, onRe
             <div className="col-span-2">
               الإدارات:{' '}
               <span className="font-medium">
-                {selectedRequest.departments
-                  .map((deptId) => departments.find((d) => d.departmentId === deptId)?.department)
-                  .filter(Boolean)
-                  .join(', ')}
+              {Array.isArray(selectedRequest.departments?.set) && selectedRequest.departments?.set
+  .map((deptId) => departments.find((d) => d.departmentId === deptId)?.department)
+  .join(', ')}
+
               </span>
             </div>
           </div>

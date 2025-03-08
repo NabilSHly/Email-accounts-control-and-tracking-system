@@ -205,7 +205,7 @@ export default function EmployeesTable({ data, departments, municipalities, sear
     {
       accessorKey: "createdAt",
       header: "تاريخ الانشاء",
-      cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleDateString(),
+      cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleDateString("en-GB"),
     },
     {
       id: "actions",
@@ -245,6 +245,14 @@ export default function EmployeesTable({ data, departments, municipalities, sear
       globalFilter: searchTerm,
       columnVisibility,
       rowSelection,
+    },
+    initialState: {
+      sorting: [
+        {
+          id: 'createdAt',  // Column to sort by
+          desc: true,       // Descending order (newest first)
+        },
+      ],
     },
     getRowId: row => row.rowId, // Use our custom rowId for selection
     enableRowSelection: true,

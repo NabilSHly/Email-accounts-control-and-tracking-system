@@ -1,4 +1,5 @@
-const prisma = require('../db');
+// controllers/dashboardController.js
+const prisma = require('../db'); // Import prisma client
 
 // Get dashboard statistics
 const getDashboardStats = async (req, res, next) => {
@@ -32,4 +33,4 @@ const getDashboardStats = async (req, res, next) => {
 
 module.exports = {
   getDashboardStats
-}; 
+};

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState, useEffect, useContext } from 'react';
+import AuthContext from "@/context/AuthContext"; // Import context
 import { 
   Card, 
   CardContent, 
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Users, Building2, Landmark, AlertCircle } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
@@ -25,7 +25,8 @@ import { toast } from "sonner";
 import { fetchDashboardStats, fetchAuditLogs } from '@/services/api';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { userData } = useContext(AuthContext);
+
   const [stats, setStats] = useState({
     totalEmployees: 0,
     activeEmployees: 0,
@@ -43,12 +44,13 @@ export default function Dashboard() {
       try {
         const [statsData, logsData] = await Promise.all([
           fetchDashboardStats(),
-          fetchAuditLogs({ limit: 5 }) // Limit to 5 most recent logs
+          fetchAuditLogs() // Limit to 5 most recent logs
         ]);
-        
+  console.log(statsData, logsData);
+  
         setStats(statsData);
-        setRecentActivity(logsData.logs || logsData); // Handle different response formats
-        setError("");
+        setRecentActivity(logsData || []); // Ensure logsData is always an array
+        setError(""); // Clear any previous error
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError("Failed to load dashboard data. Please refresh the page.");
@@ -59,7 +61,7 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-
+  
     fetchDashboardData();
   }, []);
 
@@ -115,7 +117,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              إجمالي الموظفين
+              إجمالي الحسابات 
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -151,7 +153,7 @@ export default function Dashboard() {
               <div className="text-2xl font-bold">{stats.pendingRequests}</div>
               <AlertCircle className="h-5 w-5 text-muted-foreground" />
             </div>
-            {stats.pendingRequests > 0 && user?.permissions?.includes('ADMIN') && (
+            {stats.pendingRequests > 0 && userData?.permissions?.includes('ADMIN') && (
               <Link 
                 to="/employees/create" 
                 className="text-xs text-primary hover:underline mt-2 block"
@@ -219,16 +221,16 @@ export default function Dashboard() {
                 {recentActivity.map((activity) => (
                   <TableRow key={activity.id}>
                     <TableCell className="font-medium">
-                      {new Date(activity.timestamp).toLocaleString('ar-SA')}
+                      {new Date(activity.timestamp).toLocaleString()}
                     </TableCell>
                     <TableCell>{activity.username}</TableCell>
                     <TableCell>
-                      <Badge variant={actionBadgeVariants[activity.actionType] || "secondary"}>
+                      <Badge variant={actionBadgeVariants[activity.actionType] || "outline"}>
                         {activity.actionType}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={entityBadgeVariants[activity.entityType] || "default"}>
+                      <Badge variant={entityBadgeVariants[activity.entityType] || "outline"}>
                         {activity.entityType}
                       </Badge>
                     </TableCell>
@@ -242,4 +244,4 @@ export default function Dashboard() {
       </Card>
     </div>
   );
-} 
+}

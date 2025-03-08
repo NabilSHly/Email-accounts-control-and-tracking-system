@@ -3,6 +3,7 @@ const createHttpError = require('http-errors');
 
 // Get audit logs with filtering
 const getFilteredAuditLogs = async (req, res, next) => {
+  
   try {
     // Extract filter parameters from query
     const { 

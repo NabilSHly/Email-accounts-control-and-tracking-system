@@ -4,14 +4,14 @@ const { logAction } = require('../services/auditLogger');
  * Middleware to log API actions
  */
 const actionLoggerMiddleware = (entityType) => {
-  // console.log('entityType:', entityType);
+  console.log("ddd");
   
   return async (req, res, next) => {
     // Store the original send method
     const originalSend = res.send;
-    
+
     // Override the send method to log after successful responses
-    res.send = function(data) {
+    res.send = async function(data) {
       // Only log successful responses (status 2xx)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         const userId = req.user?.id;
@@ -29,12 +29,10 @@ const actionLoggerMiddleware = (entityType) => {
           }
           
           // Extract entity ID from params or body
-          const entityId = req.params.id || 
-                          (req.body.id ? req.body.id : null) ||
-                          (req.body.employeeId ? req.body.employeeId : null);
+          const entityId = req.params.id || req.body.id || req.body.employeeId;
           
           // Log the action
-          logAction({
+           awaitlogAction({
             userId,
             username,
             actionType,
@@ -43,11 +41,13 @@ const actionLoggerMiddleware = (entityType) => {
             details: {
               method: req.method,
               path: req.path,
-              body: req.method !== 'GET' ? req.body : undefined,
+              body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
               query: Object.keys(req.query).length ? req.query : undefined
             },
             ipAddress: req.ip
-          }).catch(err => console.error('Failed to log action:', err));
+          }).catch(err => {
+            console.error('Failed to log action:', err);
+          });
         }
       }
       
@@ -61,4 +61,4 @@ const actionLoggerMiddleware = (entityType) => {
 
 module.exports = {
   actionLoggerMiddleware
-}; 
+};

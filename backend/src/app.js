@@ -11,6 +11,7 @@ const departmentsController = require('./controllers/departments');
 const municipalitiesControler = require('./controllers/municipalities');
 const employeesController = require('./controllers/employees');
 const auditLogsController = require('./controllers/auditLogs');
+const dashboardController = require('./controllers/dashboard');
 const { actionLoggerMiddleware } = require('./middleware/actionLogger');
 
 dotenv.config();
@@ -95,7 +96,7 @@ app.get('/munemps',rbac('ADMIN'), );
 
 // Audit logs routes (admin only)
 app.get('/audit-logs', rbac('ADMIN'), auditLogsController.getFilteredAuditLogs);
-
+app.get('/dashboard-stats', rbac('ADMIN'), dashboardController.getDashboardStats);
 // Error handling middleware (must be last)
 app.use((err, req, res, next) => {
   console.error("❌ API Error:", err.message);

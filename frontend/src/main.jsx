@@ -14,6 +14,7 @@ import CreateEmploye from './pages/employees/components/RequestEmail';
 import RequestEmail from './pages/employees/components/RequestEmail';
 import CreateEmail from './pages/employees/components/CreateEmail';
 import AuditLogs from './pages/admin/AuditLogs';
+import Dashboard from './pages/Dashboard';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,7 +26,9 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <h1>Home</h1>,
+        element: <Dashboard />,
+        // element: <h1>Dashboard</h1>,
+
       },
       {
         path: "/users",
