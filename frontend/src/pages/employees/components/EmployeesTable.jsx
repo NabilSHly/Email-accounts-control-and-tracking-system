@@ -108,7 +108,19 @@ const getDepartmentName = (departmentId, departmentsList) => {
 export default function EmployeesTable({ data, departments, municipalities, searchTerm }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
-  
+
+  const columnLabels = {
+    engname: "الاسم بالانجليزي",
+    arname: "الاسم بالعربي",
+    email: "البريد الالكتروني",
+    phoneNumber: "رقم الهاتف",
+    status: "الحالة",
+    reported: "تم التواصل معه",
+    municipalityId: "البلدية",
+    singleDepartmentId: "القسم",
+    createdAt: "تاريخ الانشاء",
+    actions: "actions",
+  };
   // Define columns
   const columns = [
     // {
@@ -162,7 +174,10 @@ export default function EmployeesTable({ data, departments, municipalities, sear
         const variant = 
           status === "ACTIVE" ? "success" : 
           status === "PENDING" ? "warning" : "destructive";
-        return <Badge variant={variant}>{status}</Badge>;
+        return <Badge variant={variant}>{
+          status === "ACTIVE" ? "نشط" : 
+          status === "PENDING" ? "قيد المراجعة" : "غير نشط"
+        }</Badge>;
       },
     },
     {
@@ -203,7 +218,7 @@ export default function EmployeesTable({ data, departments, municipalities, sear
             variant="outline"
             size="sm"
             onClick={() => sendWhatsAppMessage(employee)}
-            className="flex items-center gap-1"
+            className="flex bg-[#25D366] text-white hover:text-[#25D366] items-center gap-1"
             disabled={!employee.phoneNumber}
           >
             <img src="./whatsapp-logo-4456.png" className="w-6 h-6" alt="" />
@@ -329,8 +344,7 @@ export default function EmployeesTable({ data, departments, municipalities, sear
                   checked={column.getIsVisible()}
                   onCheckedChange={value => column.toggleVisibility(!!value)}
                 >
-                  {column.id === "municipalityId" ? "Municipality" : 
-                   column.id === "reported" ? "Reported" : column.id}
+                  { columnLabels[column.id] }
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>

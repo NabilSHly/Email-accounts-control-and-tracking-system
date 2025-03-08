@@ -5,6 +5,7 @@ const createHttpError = require('http-errors');
 const createUser = async (req, res, next) => {
   try {
     const { name, username, password, departmentsId, permissions } = req.body;
+console.log( name, username, password, departmentsId, permissions);
 
     if (!username || !password) {
       throw createHttpError(400, 'Username and password are required');
@@ -50,7 +51,7 @@ const updateUser = async (req, res, next) => {
   const { name, username, password, departmentsId, permissions } = req.body;
 
   // Ensure departmentsId is an array
-  const departments = Array.isArray(departmentsId) ? departmentsId : JSON.parse(departmentsId || '[]');
+  const departments = Array.isArray(departmentsId) ? departmentsId : [];
 
   try {
     const user = await prisma.users.update({
@@ -84,10 +85,25 @@ const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+const getUserById = async (req, res, next) => {
+  const { id } = req.params;
 
+  try {
+    const user = await prisma.users.findFirst({ where: { id: parseInt(id) } });
+    if (!user) {
+      throw createHttpError(404, 'User not found');
+    }
+
+    res.json(user);
+  } catch (error) { 
+    next(error);
+  }
+
+}
 module.exports = {
   createUser,
   getAllUsers,
   updateUser,
   deleteUser,
+  getUserById
 };

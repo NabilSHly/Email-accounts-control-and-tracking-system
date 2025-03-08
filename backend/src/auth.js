@@ -46,7 +46,9 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   
   try {
+
     const { username, password } = req.body;
+console.log(username,password);
 
     if (!username || !password) {
       throw createHttpError(400, 'Username and password required');

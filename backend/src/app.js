@@ -39,26 +39,12 @@ app.use((req, res, next) => {
   if (!token) return next(createHttpError(401, 'Unauthorized: No token provided'));
 
   try {
-    req.user = verifyToken(token); // Verify and decode the token
+    req.user = verifyToken(token);
     next();
   } catch (error) {
     console.error("❌ Invalid token:", error.message);
     return next(createHttpError(401, 'Unauthorized: Invalid or expired token'));
   }
-});
-app.use((err, req, res, next) => {
-  console.error("❌ API Error:", err.message);
-  if (err instanceof createHttpError.HttpError) {
-    return res.status(err.statusCode).json({
-      error: err.message,
-      details: err.details,
-    });
-  }
-  res.status(500).json({ error: 'Internal Server Error' });
-});
-
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
 });
 
 app.get('/', (req, res) => {
@@ -71,6 +57,7 @@ app.post('/auth/login', login);
 
 app.post('/users', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.createUser);
 app.get('/users', rbac('ADMIN'), usersController.getAllUsers);
+app.get('/users/:id', rbac('ADMIN'), usersController.getUserById);
 app.put('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.updateUser);
 app.delete('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.deleteUser);
 
@@ -102,6 +89,9 @@ app.get('/employees/municipality/:municipalityId', rbac('ADMIN'), employeesContr
 // Employee routes - User operations (request email creation)
 app.post('/employees/request', employeesController.requestEmployeeEmail);
 
+app.post('/munemps',rbac('ADMIN'), );
+app.put('/munemps',rbac('ADMIN'), );
+app.get('/munemps',rbac('ADMIN'), );
 
 // Audit logs routes (admin only)
 app.get('/audit-logs', rbac('ADMIN'), auditLogsController.getFilteredAuditLogs);

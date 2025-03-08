@@ -4,7 +4,7 @@ const { logAction } = require('../services/auditLogger');
  * Middleware to log API actions
  */
 const actionLoggerMiddleware = (entityType) => {
-  console.log('entityType:', entityType);
+  // console.log('entityType:', entityType);
   
   return async (req, res, next) => {
     // Store the original send method

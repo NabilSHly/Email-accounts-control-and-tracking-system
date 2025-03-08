@@ -139,7 +139,7 @@ export default function MangeUsersPage() {
               </Table>
             )}
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className=" text-right max-w-[625px] ">
           <DialogHeader>
             <DialogTitle>عدل  </DialogTitle>
             <DialogDescription>تعديل بيانات المستخدم.</DialogDescription>
