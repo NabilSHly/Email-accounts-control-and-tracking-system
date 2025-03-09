@@ -5,7 +5,6 @@ const createHttpError = require('http-errors');
 const createUser = async (req, res, next) => {
   try {
     const { name, username, password, departmentsId, permissions } = req.body;
-console.log( name, username, password, departmentsId, permissions);
 
     if (!username || !password) {
       throw createHttpError(400, 'Username and password are required');

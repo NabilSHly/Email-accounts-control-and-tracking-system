@@ -26,6 +26,7 @@ const getFilteredAuditLogs = async (req, res, next) => {
       startDate,
       endDate
     };
+console.log(req.body);
 
     // Clean up filters (remove undefined values)
     Object.keys(filters).forEach(key => {

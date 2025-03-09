@@ -342,13 +342,13 @@ export default function AuditLogs() {
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>التاريخ والوقت</TableHead>
-                      <TableHead>المستخدم</TableHead>
-                      <TableHead>الإجراء</TableHead>
-                      <TableHead>الكيان</TableHead>
-                      <TableHead>معرف الكيان</TableHead>
-                      <TableHead>التفاصيل</TableHead>
+                    <TableRow className="text-start">
+                      <TableHead className="text-start">التاريخ والوقت</TableHead>
+                      <TableHead className="text-start">المستخدم</TableHead>
+                      <TableHead className="text-start">الإجراء</TableHead>
+                      <TableHead className="text-start">الكيان</TableHead>
+                      <TableHead className="text-start">معرف الكيان</TableHead>
+                      <TableHead className="text-start">التفاصيل</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

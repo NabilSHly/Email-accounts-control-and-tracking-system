@@ -4,57 +4,51 @@ const { logAction } = require('../services/auditLogger');
  * Middleware to log API actions
  */
 const actionLoggerMiddleware = (entityType) => {
-  console.log("ddd");
-  
   return async (req, res, next) => {
-    // Store the original send method
-    const originalSend = res.send;
+    const userId = req.user?.id;
+    const username = req.user?.username;
+console.log(req.user);
 
-    // Override the send method to log after successful responses
-    res.send = async function(data) {
-      // Only log successful responses (status 2xx)
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        const userId = req.user?.id;
-        const username = req.user?.username;
-        
-        if (userId && username) {
-          // Determine action type based on HTTP method
-          let actionType;
-          switch (req.method) {
-            case 'POST': actionType = 'CREATE'; break;
-            case 'PUT':
-            case 'PATCH': actionType = 'UPDATE'; break;
-            case 'DELETE': actionType = 'DELETE'; break;
-            default: actionType = 'OTHER';
-          }
-          
-          // Extract entity ID from params or body
-          const entityId = req.params.id || req.body.id || req.body.employeeId;
-          
-          // Log the action
-           awaitlogAction({
+    // Only log if user is authenticated
+    if (userId ) {
+      // Determine action type based on HTTP method
+      let actionType;
+      switch (req.method) {
+        case 'POST': actionType = 'CREATE'; break;
+        case 'PUT':
+        case 'PATCH': actionType = 'UPDATE'; break;
+        case 'DELETE': actionType = 'DELETE'; break;
+        default: actionType = 'OTHER';
+      }
+
+      // Extract entity ID from params or body
+      const entityId = req.params.id || req.body.id || req.body.employeeId;
+      const details = {
+        method: req.method,
+        path: req.path,
+        body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
+        query: Object.keys(req.query).length ? req.query : undefined,
+        headers: req.headers, // Log request headers
+        ipAddress: req.ip // Capture the IP address of the client
+      };
+
+
+      res.on('finish', async () => {
+        try {
+          await logAction({
             userId,
             username,
             actionType,
             entityType,
             entityId,
-            details: {
-              method: req.method,
-              path: req.path,
-              body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
-              query: Object.keys(req.query).length ? req.query : undefined
-            },
-            ipAddress: req.ip
-          }).catch(err => {
-            console.error('Failed to log action:', err);
+            details,
           });
+        } catch (err) {
+          console.error('Failed to log action:', err);
         }
-      }
-      
-      // Call the original send method
-      return originalSend.call(this, data);
-    };
-    
+      });
+    }
+
     next();
   };
 };

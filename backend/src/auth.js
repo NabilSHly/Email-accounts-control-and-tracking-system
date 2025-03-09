@@ -35,7 +35,7 @@ const register = async (req, res, next) => {
       },
     });
 
-    const token = generateToken({ id: user.id, permissions: user.permissions });
+    const token = generateToken({ id: user.id, username: user.username, permissions: user.permissions });
     res.status(201).json({ success: true, token, user });
   } catch (error) {
     next(error);
@@ -48,7 +48,6 @@ const login = async (req, res, next) => {
   try {
 
     const { username, password } = req.body;
-console.log(username,password);
 
     if (!username || !password) {
       throw createHttpError(400, 'Username and password required');
@@ -59,7 +58,7 @@ console.log(username,password);
       throw createHttpError(401, 'Invalid credentials');
     }
 
-    const token = generateToken({ id: user.id, permissions: user.permissions });
+    const token = generateToken({ id: user.id, username: user.username, permissions: user.permissions });
     
     res.json({ success: true, token, user: { id: user.id,name: user.name, username: user.username, permissions: user.permissions, departmentsId: user.departmentsId } });
   } catch (error) {

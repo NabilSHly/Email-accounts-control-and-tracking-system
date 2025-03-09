@@ -4,7 +4,6 @@ const rbac = (requiredPermission) => {
       try {
         // Ensure userPermissions is an array
         const userPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : JSON.parse(req.user.permissions || '[]');
-        console.log(userPermissions);
        
         if (!userPermissions.includes(requiredPermission)) {
           return res.status(403).json({ error: 'Access denied' }); // Deny access if permission is missing

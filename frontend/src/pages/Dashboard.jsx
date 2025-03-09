@@ -210,11 +210,11 @@ export default function Dashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>التاريخ والوقت</TableHead>
-                  <TableHead>المستخدم</TableHead>
-                  <TableHead>الإجراء</TableHead>
-                  <TableHead>الكيان</TableHead>
-                  <TableHead>معرف الكيان</TableHead>
+                  <TableHead className="text-start">التاريخ والوقت</TableHead>
+                  <TableHead className="text-start">المستخدم</TableHead>
+                  <TableHead className="text-start">الإجراء</TableHead>
+                  <TableHead className="text-start">الكيان</TableHead>
+                  <TableHead className="text-start">uniqueId </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

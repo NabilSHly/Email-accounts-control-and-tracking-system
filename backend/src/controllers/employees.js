@@ -99,12 +99,7 @@ const requestEmployeeEmail = async (req, res, next) => {
       phoneNumber, 
       notes 
     } = req.body;
-console.log(engname, 
-  arname, 
-  departments, 
-  municipalityId, 
-  phoneNumber, 
-  notes );
+
 
     if (!engname || !arname || !municipalityId) {
       throw createHttpError(400, 'English name, Arabic name, and municipality ID are required');

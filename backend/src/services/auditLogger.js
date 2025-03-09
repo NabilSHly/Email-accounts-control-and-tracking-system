@@ -22,7 +22,6 @@ const logAction = async (logData) => {
       entityType, 
       entityId = null, 
       details = {}, 
-      ipAddress = null 
     } = logData;
 
     // Validate required fields
@@ -40,7 +39,6 @@ const logAction = async (logData) => {
         entityType,
         entityId: entityId ? String(entityId) : null,
         details: JSON.stringify(details),
-        ipAddress,
       },
     });
 
