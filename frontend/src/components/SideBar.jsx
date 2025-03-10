@@ -14,7 +14,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import MenuIcon from '@mui/icons-material/Menu';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Component,  MapPinned, History } from 'lucide-react';
+import { Component, MapPinned, History, Landmark, Mail, Plus, MailPlus, LayoutDashboard } from 'lucide-react';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -32,7 +32,16 @@ export default function Sidebar() {
   
         <List className='h-full  ' >
             
-           
+            
+        <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/')}>
+                <ListItemIcon>
+                <LayoutDashboard className='text-primary'/>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"لوحة التحكم "} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
 
             
             <ListItem  className="   bg-pSnow"  disablePadding>
@@ -49,7 +58,7 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/departments')}>
                 <ListItemIcon>
-                <Component className=''/>
+                <Component className='text-primary'/>
                 </ListItemIcon>
                 <ListItemText className={""} primary={"ادارة الأقسام"} />
               </ListItemButton>
@@ -59,7 +68,8 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/municipalities')}>
                 <ListItemIcon>
-                <MapPinned className='text-primary'/>
+                <Landmark  className='text-primary' />
+
                 </ListItemIcon>
                 <ListItemText className='text-primary' primary={"البلديات"} />
               </ListItemButton>
@@ -68,7 +78,7 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/employees')}>
                 <ListItemIcon>
-                <MapPinned className='text-primary'/>
+                  <Mail className='text-primary'/>
                 </ListItemIcon>
                 <ListItemText className='text-primary' primary={"عناوين بريد موظفي مكاتب البلديات"} />
               </ListItemButton>
@@ -77,6 +87,8 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/employees/request')}>
                 <ListItemIcon>
+                <MailPlus className='text-primary'/>
+
                 </ListItemIcon>
                 <ListItemText className='text-primary' primary={"طلب صنع عنوان بريد الكتروني لموظف  بلدية     "} />
               </ListItemButton>
@@ -85,6 +97,8 @@ export default function Sidebar() {
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/employees/create')}>
                 <ListItemIcon>
+                <MailPlus className='text-primary'/>
+
                 </ListItemIcon>
                 <ListItemText className='text-primary' primary={" صنع عنوان بريد الكتروني لموظف  بلدية     "} />
               </ListItemButton>

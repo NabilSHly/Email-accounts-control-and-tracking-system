@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Users, Building2, Landmark, AlertCircle } from "lucide-react";
+import { Mail, Users, Building2, Landmark, AlertCircle, MailWarning } from "lucide-react";
 import { Link } from 'react-router';
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
@@ -117,7 +117,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              إجمالي الحسابات 
+               مستخدمي النظام 
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -151,7 +151,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">{stats.pendingRequests}</div>
-              <AlertCircle className="h-5 w-5 text-muted-foreground" />
+              <MailWarning className="h-5 w-5 text-muted-foreground" />
             </div>
             {stats.pendingRequests > 0 && userData?.permissions?.includes('ADMIN') && (
               <Link 
