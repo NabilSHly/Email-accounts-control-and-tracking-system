@@ -90,10 +90,6 @@ app.get('/employees/municipality/:municipalityId', rbac('ADMIN'), employeesContr
 // Employee routes - User operations (request email creation)
 app.post('/employees/request', employeesController.requestEmployeeEmail);
 
-app.post('/munemps',rbac('ADMIN'), );
-app.put('/munemps',rbac('ADMIN'), );
-app.get('/munemps',rbac('ADMIN'), );
-
 // Audit logs routes (admin only)
 app.get('/audit-logs', rbac('ADMIN'), auditLogsController.getFilteredAuditLogs);
 app.get('/dashboard-stats', rbac('ADMIN'), dashboardController.getDashboardStats);

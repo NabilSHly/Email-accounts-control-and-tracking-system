@@ -35,10 +35,13 @@ const Login = () => {
       );
 
       if (response.data.success) {
-        console.log("Login successful:", response.data);
-        
         login(response.data.token, response.data.user); // Call login from context to set token and user data
-        navigate("/"); // Redirect to the home page after login
+        
+        if (response.data.user.permissions.includes("ADMIN")) {
+          navigate("/"); // Redirect to the dashboard if user is an admin
+        } else {
+          navigate("/employees"); // Redirect to employees page if not admin
+        }
       } else {
         setError(response.data.message || "Invalid credentials");
       }

@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Track loading state
 
   // Function to validate and decode the token
   const validateToken = (token) => {
@@ -41,6 +42,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Error reading from localStorage:", error);
       logout();
+    } finally {
+      setLoading(false); // Once the effect is done, stop loading
     }
   }, []);
 
@@ -73,10 +76,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  console.log({ userData, isAuthenticated });
-
   return (
-    <AuthContext.Provider value={{ userData, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ userData, isAuthenticated, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

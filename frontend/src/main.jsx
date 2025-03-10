@@ -27,20 +27,30 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Dashboard />,
-        // element: <h1>Dashboard</h1>,
+        
 
       },
       {
         path: "/users",
-        element: <MangeUsersPage />,
+        
+        element:
+        <PrivateRoute requiredPermission="ADMIN">
+        <MangeUsersPage />
+        </PrivateRoute>,
       },
       {
         path: "/departments",
-        element: <DepartmentsPage />,
+        element:
+        <PrivateRoute requiredPermission="ADMIN">
+        <DepartmentsPage />
+        </PrivateRoute>,
       },
       {
         path: "/municipalities",
-        element: <MunicipalitiesPage />,
+        element:
+        <PrivateRoute requiredPermission="ADMIN">
+        <MunicipalitiesPage />
+        </PrivateRoute>,
       },
       {
         path: "/employees",
@@ -48,15 +58,24 @@ const router = createBrowserRouter([
       },
       {
         path: "/employees/request",
-        element: <RequestEmail />,
+        element:
+        <PrivateRoute requiredPermission="REQUEST_ISSUE">
+        <RequestEmail />
+        </PrivateRoute>,
       },
       {
         path: "/employees/create",
-        element: <CreateEmail />,
+        element: 
+        <PrivateRoute requiredPermission="ADMIN">
+        <CreateEmail />
+        </PrivateRoute>,
       },
       {
         path: "/admin/audit-logs",
-        element: <AuditLogs />,
+        element: 
+        <PrivateRoute requiredPermission="ADMIN">
+        <AuditLogs />
+        </PrivateRoute>,
       }
     ],
   },
