@@ -63,29 +63,29 @@ app.put('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersContro
 app.delete('/users/:id', rbac('ADMIN'), actionLoggerMiddleware('user'), usersController.deleteUser);
 
 app.post('/departments', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.createDepartment);
-app.get('/departments', rbac('ADMIN'), departmentsController.getAllDepartments);
+app.get('/departments', rbac('VIEWER'), departmentsController.getAllDepartments);
 app.put('/departments/:id', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.updateDepartments);
 app.delete('/departments/:id', rbac('ADMIN'), actionLoggerMiddleware('department'), departmentsController.deleteDepartment);
 
 
-app.get('/municipalities',rbac('ADMIN'),municipalitiesControler.getAllMunicipalities );
+app.get('/municipalities',rbac('VIEWER'),municipalitiesControler.getAllMunicipalities );
 app.post('/municipalities',rbac('ADMIN'), actionLoggerMiddleware('municipality'), municipalitiesControler.createMunicipality);
 app.put('/municipalities/:id',rbac('ADMIN'),actionLoggerMiddleware('municipality'),municipalitiesControler.updateMunicipality );
 app.delete('/municipalities/:id',rbac('ADMIN'),actionLoggerMiddleware('municipality'),municipalitiesControler.deleteMunicipality );
 
 // Employee routes - Admin operations
 app.post('/employees/admin', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.adminCreateEmployeeWithEmail);
-app.get('/employees', rbac('ADMIN'), employeesController.getAllEmployees);
-app.get('/employees/pending', rbac('ADMIN'), employeesController.getPendingEmailRequests);
-app.get('/employees/:id', rbac('ADMIN'), employeesController.getEmployeeById);
+app.get('/employees', rbac('VIEWER'), employeesController.getAllEmployees);
+app.get('/employees/pending', rbac('VIEWER'), employeesController.getPendingEmailRequests);
+app.get('/employees/:id', rbac('VIEWER'), employeesController.getEmployeeById);
 app.put('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.updateEmployee);
 app.delete('/employees/:id', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.deleteEmployee);
 app.patch('/employees/:id/status', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.updateEmployeeStatus);
 app.post('/employees/:id/approve', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.approveAndCreateEmail);
 app.put('/employees/:id/report', rbac('ADMIN'), actionLoggerMiddleware('employee'), employeesController.reportEmployee);
   // Employee routes - Department and Municipality filtering
-app.get('/employees/department/:departmentId', rbac('ADMIN'), employeesController.getEmployeesByDepartment);
-app.get('/employees/municipality/:municipalityId', rbac('ADMIN'), employeesController.getEmployeesByMunicipality);
+app.get('/employees/department/:departmentId', rbac('VIEWER'), employeesController.getEmployeesByDepartment);
+app.get('/employees/municipality/:municipalityId', rbac('VIEWER'), employeesController.getEmployeesByMunicipality);
 
 // Employee routes - User operations (request email creation)
 app.post('/employees/request', employeesController.requestEmployeeEmail);

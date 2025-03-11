@@ -16,7 +16,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Component, MapPinned, History, Landmark, Mail, Plus, MailPlus, LayoutDashboard } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({userPremissions}) {
   const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const toggleDrawer = (newOpen) => () => {
@@ -32,17 +32,17 @@ export default function Sidebar() {
   
         <List className='h-full  ' >
             
-            
-        <ListItem  className="   bg-pSnow"  disablePadding>
-              <ListItemButton onClick={() => navigate('/')}>
-                <ListItemIcon>
-                <LayoutDashboard className='text-primary'/>
-                </ListItemIcon>
-                <ListItemText className='text-primary' primary={"لوحة التحكم "} />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-
+{userPremissions.includes('ADMIN') && (
+  <>
+    <ListItem  className="   bg-pSnow"  disablePadding>
+      <ListItemButton onClick={() => navigate('/')}>
+        <ListItemIcon>
+          <LayoutDashboard className='text-primary'/>
+        </ListItemIcon>
+        <ListItemText className='text-primary' primary={"لوحة التحكم "} />
+      </ListItemButton>
+    </ListItem>
+    <Divider />
             
             <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/users')}>
@@ -76,30 +76,12 @@ export default function Sidebar() {
             </ListItem>
             <Divider />
             <ListItem  className="   bg-pSnow"  disablePadding>
-              <ListItemButton onClick={() => navigate('/employees')}>
-                <ListItemIcon>
-                  <Mail className='text-primary'/>
-                </ListItemIcon>
-                <ListItemText className='text-primary' primary={"عناوين بريد موظفي مكاتب البلديات"} />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-            <ListItem  className="   bg-pSnow"  disablePadding>
-              <ListItemButton onClick={() => navigate('/employees/request')}>
-                <ListItemIcon>
-                <MailPlus className='text-primary'/>
-
-                </ListItemIcon>
-                <ListItemText className='text-primary' primary={"طلب صنع عنوان بريد الكتروني لموظف  بلدية     "} />
-              </ListItemButton>
-            </ListItem>
-            <Divider />
-            <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/employees/create')}>
                 <ListItemIcon>
                 <MailPlus className='text-primary'/>
 
                 </ListItemIcon>
+                
                 <ListItemText className='text-primary' primary={" صنع عنوان بريد الكتروني لموظف  بلدية     "} />
               </ListItemButton>
             </ListItem>
@@ -112,6 +94,34 @@ export default function Sidebar() {
                 <ListItemText className='text-primary' primary={"سجل النشاطات"} />
               </ListItemButton>
             </ListItem>
+            <Divider />
+            </>
+)}
+
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/employees')}>
+                <ListItemIcon>
+                  <Mail className='text-primary'/>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"عناوين بريد موظفي مكاتب البلديات"} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+                        
+{userPremissions.includes('REQUEST_ISSUE') && (
+  <>
+            <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton onClick={() => navigate('/employees/request')}>
+                <ListItemIcon>
+                <MailPlus className='text-primary'/>
+
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"طلب صنع عنوان بريد الكتروني لموظف  بلدية     "} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            </>
+)}
         </List>
         <ListItem  className=" bottom-0  bg-white" disablePadding>
               <ListItemButton  onClick={handleLogout}>

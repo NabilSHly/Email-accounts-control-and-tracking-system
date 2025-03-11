@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect,useContext } from 'react';
 import EmployeesTable from './components/EmployeesTable';
 import EmployeesFilters from './components/EmployeesFilters';
 import { fetchEmployees, fetchDepartments, fetchMunicipalities } from '@/services/api';
 import { Spinner } from '@/components/ui/spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import AuthContext from '@/context/AuthContext';
 import PropTypes from 'prop-types';
 
 export default function EmployeesEmailsWrapper() {
@@ -15,6 +16,8 @@ export default function EmployeesEmailsWrapper() {
 }
 
 function EmployeesEmails() {
+   const { userData } = useContext(AuthContext);
+  
   // State for data from API
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -143,6 +146,7 @@ console.log([employeesData, departmentsData, municipalitiesData]);
             departments={departments}
             municipalities={municipalities}
             searchTerm={filters.search}
+            userPermissions={userData.permissions}
           />
         </>
       )}

@@ -105,9 +105,10 @@ const getDepartmentName = (departmentId, departmentsList) => {
   return dept ? dept.department : "N/A";
 };
 
-export default function EmployeesTable({ data, departments, municipalities, searchTerm }) {
+export default function EmployeesTable({ data, departments, municipalities, searchTerm ,userPermissions  }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
+console.log(userPermissions);
 
   const columnLabels = {
     engname: "الاسم بالانجليزي",
@@ -207,34 +208,34 @@ export default function EmployeesTable({ data, departments, municipalities, sear
       header: "تاريخ الانشاء",
       cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleDateString("en-GB"),
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const employee = row.original;
-        return (
-          <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => sendWhatsAppMessage(employee)}
-            className="flex bg-[#25D366] text-white hover:text-[#25D366] items-center gap-1"
-            disabled={!employee.phoneNumber}
-          >
-            <img src="./whatsapp-logo-4456.png" className="w-6 h-6" alt="" />
-            تبليغ
-          </Button>
-          <EmployeeEditForm 
-          employee={employee}
-          departments={departments}
-          municipalities={municipalities}
-          // onSuccess={handleSuccess}
-        />
-        </div>
-          
-        );
-      },
-    },
+    ...(userPermissions.includes('ADMIN') ? [
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const employee = row.original;
+          return (
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => sendWhatsAppMessage(employee)}
+                className="flex bg-[#25D366] text-white hover:text-[#25D366] items-center gap-1"
+                disabled={!employee.phoneNumber}
+              >
+                <img src="./whatsapp-logo-4456.png" className="w-6 h-6" alt="" />
+                تبليغ
+              </Button>
+              <EmployeeEditForm
+                employee={employee}
+                departments={departments}
+                municipalities={municipalities}
+              />
+            </div>
+          );
+        },
+      }
+    ] : []), // If not "ADMIN", do not include the actions column
   ];
 
   // Configure table with rowId

@@ -15,7 +15,7 @@ console.log(req.user);
       let actionType;
       switch (req.method) {
         case 'POST': actionType = 'CREATE'; break;
-        case 'PUT':
+        case 'PUT': actionType = 'UPDATE'; break;
         case 'PATCH': actionType = 'UPDATE'; break;
         case 'DELETE': actionType = 'DELETE'; break;
         default: actionType = 'OTHER';
