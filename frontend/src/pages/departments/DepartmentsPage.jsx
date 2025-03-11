@@ -168,7 +168,7 @@ export default function DepartmentsPage() {
     }
   };
   const handleDeleteDepartment= async (id) => {
-    if (!window.confirm("Are you sure you want to delete this department?")) return;
+    if (!window.confirm("هل أنت متأكد أنك تريد حذف هذا القسم؟")) return;
     try {
       await axios.delete(`http://localhost:3000/departments/${id}`, {
         headers: {

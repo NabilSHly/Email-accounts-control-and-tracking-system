@@ -30,10 +30,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@radix-ui/react-select";
 
 const permissions = [
-  { name: "ADMIN" },
-  { name: "REQUEST_ISSUE" },
-  { name: "EDITOR" },
-  { name: "VIEWER" },
+  { name: "ADMIN",description:"امكانية ادارة المستخدمين و الادرات والبلديات و أضافة عناوين بريد الكتروني" },
+  { name: "REQUEST_ISSUE",description:"امكانية اضافة طلبات اصدار عنوان بريد الكتروني لموظف في البلدية" },
+  // { name: "EDITOR" },
+  { name: "VIEWER",description:"  يمكنه الأطلاع على عناوين البريد الكتروني لموظفي البلديات في الادرات المخول له الوصول اليها فقط " },
 ];
 
 const formSchema = z.object({
@@ -181,17 +181,22 @@ export default function CreateUserForm() {
                   <FormControl>
                     <div className="flex items-center justify-center">
                       {permissions.map((permission) => (
-                        <div key={permission.name} className="flex border p-2  items-center space-x-3">
+                        <div key={permission.name} className="flex  border p-2  items-center space-x-3">
                           <Checkbox
                             checked={field.value.includes(permission.name)}
                             onCheckedChange={(checked) => {
-                              const updatedPermissions = checked
-                                ? [...field.value, permission.name]
-                                : field.value.filter((item) => item !== permission.name);
-                              field.onChange(updatedPermissions);
+                              if (checked) {
+                                field.onChange([...field.value, permission.name]);
+                              } else {
+                                field.onChange(field.value.filter((value) => value !== permission.name));
+                              }
                             }}
                           />
-                          <span>{permission.name}</span>
+                          <div className="flex flex-col">
+                          <span className="font-bold">{permission.name}</span>
+                          <span className="text-sm">{permission.description}</span>
+                          </div>
+                         
                         </div>
                       ))}
                     </div>

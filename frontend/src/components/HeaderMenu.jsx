@@ -8,7 +8,7 @@ export default function HeaderMenu() {
    
     
   return (
-    <header className='border-b w-full sticky top-0 bg-pSnow text-black flex justify-between items-center '>
+    <header className='border-b w-full sticky top-0 z-50 bg-pSnow text-black flex justify-between items-center '>
         <Sidebar userPremissions={userData.permissions} />
         <h1 className='text-2xl font-bold p-3'>
        سجل   بيانات مدراء الادارات المكاتب بالبلديات (التحول الرقمي)  

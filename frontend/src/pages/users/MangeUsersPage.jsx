@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Edit, PlusCircle, Search } from 'lucide-react';
+import { Edit, PlusCircle, Search, Trash } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import CreateUserForm from './CreateUserForm';
 import UpdateUserForm from './UpdateUserForm';
+import { toast } from 'sonner';
 
 export default function MangeUsersPage() {
   const [users, setUsers] = useState([]);
@@ -37,6 +38,8 @@ export default function MangeUsersPage() {
         },
       });
       setUsers(response.data);
+      console.log(response.data);
+      
     } catch (error) {
       setError(error.response?.data?.message || "Failed to fetch users");
     } finally {
@@ -96,7 +99,7 @@ export default function MangeUsersPage() {
                       أسم المستخدم
                     </TableCell>
                     <TableCell className="border font-bold text-lg text-center">
-                      الأدارة/المكتب
+                      الصلاحيات
                     </TableCell>
                     <TableCell className="border text-center">
                       {/* تعديل */}
@@ -118,10 +121,39 @@ export default function MangeUsersPage() {
                       
 
                       <TableCell className="border text-center">
-                        {user.departments}
+                        {user.permissions.join(", ")}
                       </TableCell>
 
-                      <TableCell className="border text-center">
+                      <TableCell className="border flex items-center justify-evenly text-center">
+                        <Button
+                          variant="outline"
+                          className="bg-rose-500 text-white"
+                          size="icon"
+                          onClick={() => {
+                            // Delete the user
+                            axios.delete(`http://localhost:3000/users/${user.id}`, {
+                              headers: {
+                                Authorization: `Bearer ${localStorage.getItem(
+                                  "authToken"
+                                )}`,
+                              },
+                            })
+                            
+                              .then((response) => {
+                                if (response.status === 200) {
+                                  toast.success("تم حذف المستخدم بنجاح");
+                                  fetchUsers(); // Refresh the users list
+                                } else {
+                                  toast.error("Failed to delete user");
+                                }
+                              })
+                              .catch((error) => {
+                                console.error("Error deleting user", error);
+                                toast.error("Error deleting user");
+                            })}}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
                       <Button
                           variant="outline"
                           size="icon"

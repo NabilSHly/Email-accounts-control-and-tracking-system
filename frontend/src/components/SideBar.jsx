@@ -87,6 +87,16 @@ export default function Sidebar({userPremissions}) {
             </ListItem>
             <Divider />
             <ListItem  className="   bg-pSnow"  disablePadding>
+              <ListItemButton >
+                <ListItemIcon>
+                <Plus className='text-primary'/>
+                </ListItemIcon>
+                <ListItemText className='text-primary' primary={"اضافة عناوين بريد موظفي مكاتب البلديات عن طريق ملفcsv"} />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            
+            <ListItem  className="   bg-pSnow"  disablePadding>
               <ListItemButton onClick={() => navigate('/admin/audit-logs')}>
                 <ListItemIcon>
                 <History className='text-primary'/>

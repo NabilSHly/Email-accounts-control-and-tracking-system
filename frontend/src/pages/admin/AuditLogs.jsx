@@ -364,7 +364,7 @@ export default function AuditLogs() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={entityBadgeVariants[log.entityType] || "default"}>
+                          <Badge className="capitalize" variant={entityBadgeVariants[log.entityType] || "default"}>
                             {log.entityType}
                           </Badge>
                         </TableCell>

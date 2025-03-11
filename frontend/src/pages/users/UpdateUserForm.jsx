@@ -24,11 +24,12 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Define permissions
 const permissions = [
-  { name: "ADMIN", label: " ادمن" },
-  { name: "REQUEST_ISSUE", label: "ارسال طلب اصدار عنوان بريد الكتروني" },
-  { name: "EDITOR", label: " محرر " },
-  { name: "VIEWER", label: " مشاهدة" },
-]
+  { name: "ADMIN",description:"امكانية ادارة المستخدمين و الادرات والبلديات و أضافة عناوين بريد الكتروني" },
+  { name: "REQUEST_ISSUE",description:"امكانية اضافة طلبات اصدار عنوان بريد الكتروني لموظف في البلدية" },
+  // { name: "EDITOR" },
+  { name: "VIEWER",description:"  يمكنه الأطلاع على عناوين البريد الكتروني لموظفي البلديات في الادرات المخول له الوصول اليها فقط " },
+];
+
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -197,31 +198,40 @@ console.log(userData);
           />
 
           <div className="text-xl font-bold text-center border-b mb-2">الصلاحيات</div>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="permissions"
-              render={({ field }) => (
-                <>
-                  {permissions.map((permission) => (
-                    <FormItem key={permission.name} className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value.includes(permission.name)}
-                          onCheckedChange={(checked) => {
-                            const updatedPermissions = checked
-                              ? [...field.value, permission.name]
-                              : field.value.filter((item) => item !== permission.name)
-                            field.onChange(updatedPermissions)
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel>{permission.label}</FormLabel>
-                    </FormItem>
-                  ))}
-                </>
-              )}
-            />
+          <div className="  ">
+        <FormField
+                      control={form.control}
+                      name="permissions"
+                      render={({ field }) => (
+                        <FormItem className="">
+                          <FormLabel>الصلاحيات</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center justify-center">
+                              {permissions.map((permission) => (
+                                <div key={permission.name} className="flex  border p-2  items-center space-x-3">
+                                  <Checkbox
+                                    checked={field.value.includes(permission.name)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        field.onChange([...field.value, permission.name]);
+                                      } else {
+                                        field.onChange(field.value.filter((value) => value !== permission.name));
+                                      }
+                                    }}
+                                  />
+                                  <div className="flex flex-col">
+                                  <span className="font-bold">{permission.name}</span>
+                                  <span className="text-sm">{permission.description}</span>
+                                  </div>
+                                 
+                                </div>
+                              ))}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
           </div>
         </ScrollArea>
 

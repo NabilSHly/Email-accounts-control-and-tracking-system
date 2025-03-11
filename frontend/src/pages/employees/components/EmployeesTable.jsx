@@ -323,7 +323,7 @@ console.log(userPermissions);
   };
 
   return (
-    <div className=" rounded-sm px-2 bg-white ">
+    <div className=" rounded-sm px-1 bg-white ">
       <div className="flex justify-end gap-2  items-center py-4">
       
         <Button
@@ -331,7 +331,7 @@ console.log(userPermissions);
           className="flex items-center gap-2 "
         >
           <Download className="h-4 w-4" />
-          Export {Object.keys(rowSelection).length > 0 ? 'Selected' : 'All'} ({table.getFilteredRowModel().rows.length})
+          Export CSV ({table.getFilteredRowModel().rows.length})
         </Button>
         
         <DropdownMenu>
