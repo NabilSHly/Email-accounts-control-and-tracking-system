@@ -15,6 +15,7 @@ import RequestEmail from './pages/employees/components/RequestEmail';
 import CreateEmail from './pages/employees/components/CreateEmail';
 import AuditLogs from './pages/admin/AuditLogs';
 import Dashboard from './pages/Dashboard';
+import BulkEmailsImport from './pages/bulkEmailsImport/BulkEmailsImportPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/employees",
         element: <EmployeesEmails />,
+      },
+      {
+        path: "/employees/bulkEmailsImport",
+        element: <BulkEmailsImport />,
       },
       {
         path: "/employees/request",

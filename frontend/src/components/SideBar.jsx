@@ -87,7 +87,7 @@ export default function Sidebar({userPremissions}) {
             </ListItem>
             <Divider />
             <ListItem  className="   bg-pSnow"  disablePadding>
-              <ListItemButton >
+              <ListItemButton onClick={() => navigate('/employees/bulkEmailsImport')} >
                 <ListItemIcon>
                 <Plus className='text-primary'/>
                 </ListItemIcon>

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -39,6 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
 import { updateEmployee } from "@/services/api";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define TypeScript interfaces
 
@@ -288,12 +290,29 @@ export function EmployeeEditForm({
                   </FormItem>
                 )}
               />
+               
             </div>
+            <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ملاحظات</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="ملاحظات" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            
             <div className="flex justify-end gap-4">
               <Button type="submit">حفظ التغييرات</Button>
-              <Button variant="outline" type="button">
-                إلغاء
-              </Button>
+              <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              الغاء
+            </Button>
+          </DialogClose>
             </div>
           </form>
         </Form>
