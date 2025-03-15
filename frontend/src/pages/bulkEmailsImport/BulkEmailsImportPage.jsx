@@ -126,7 +126,7 @@ console.log(event);
           استيراد البريد الإلكتروني بالجملة
         </CardTitle>
         <CardDescription>
-          قم برفع ملف CSV يحتوي على بيانات المستخدمين لإضافتهم إلى النظام
+          قم برفع ملف CSV يحتوي على بيانات البريد الإلكتروني لموظفي اليلديات لإضافتهم إلى النظام
         </CardDescription>
       </CardHeader>
       <CardContent>
