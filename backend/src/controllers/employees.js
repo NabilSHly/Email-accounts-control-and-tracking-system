@@ -366,7 +366,77 @@ const getEmployeesByMunicipality = async (req, res, next) => {
   }
 };
 
+
+
+
+const upsertEmployees = async (req, res) => {
+  try {
+    const employeesData = req.body.employees;
+
+    if (!Array.isArray(employeesData) || employeesData.length === 0) {
+      return res.status(400).json({ error: "Invalid employees data." });
+    }
+
+    for (const employee of employeesData) {
+      if (!employee.email || !employee.departmentId) {
+        return res.status(400).json({ error: "Each employee must have an email and a departmentId." });
+      }
+
+      // Ensure departmentId is processed correctly
+      const departmentId = parseInt(employee.departmentId);
+      if (isNaN(departmentId)) {
+        return res.status(400).json({ error: "Invalid departmentId." });
+      }
+
+      // Check if the employee exists
+      const existingEmployee = await prisma.employees.findUnique({
+        where: { email: employee.email },
+      });
+
+      if (existingEmployee) {
+        // Update existing employee's departments array
+        const currentDepartments = Array.isArray(existingEmployee.departments) 
+          ? existingEmployee.departments 
+          : JSON.parse(existingEmployee.departments || '[]');
+        
+        // Avoid duplicates
+        if (!currentDepartments.includes(departmentId)) {
+          const updatedDepartments = [...currentDepartments, departmentId];
+          await prisma.employees.update({
+            where: { email: employee.email },
+            data: {
+              departments: { set: updatedDepartments },
+            },
+          });
+        }
+      } else {
+        // Create new employee with department in JSON array
+        const municipalityId = parseInt(employee.municipalityID) || null;
+        await prisma.employees.create({
+          data: {
+            engname: employee.nameInEnglish,
+            arname: employee.nameInArabic,
+            email: employee.email,
+            password: employee.password,
+            phoneNumber: employee.phoneNumber,
+            municipalityId: municipalityId,
+            departments: { set: [departmentId] }, // Store as JSON array
+            status: "ACTIVE",
+            reported: false,
+          },
+        });
+      }
+    }
+
+    res.status(200).json({ message: "Employees processed successfully." });
+  } catch (error) {
+    console.error("Error processing employees:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 module.exports = {
+  upsertEmployees,
   createEmployee,
   adminCreateEmployeeWithEmail,
   requestEmployeeEmail,

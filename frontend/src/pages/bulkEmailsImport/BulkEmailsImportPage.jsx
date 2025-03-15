@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Loader2, Info } from "lucide-react";
 import CsvUploader from "./components/csv-uploader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import axios from "axios";
 
 export default function BulkEmailsImport() {
   const [jsonData, setJsonData] = useState([]);
@@ -63,7 +64,6 @@ export default function BulkEmailsImport() {
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-console.log(event);
 
     // Validate form data
     if (jsonData.length === 0) {
@@ -98,7 +98,14 @@ console.log(event);
 
       // Here you would implement the API call to add users
       // await addUsersFromCSV(dataWithDepartment);
-      console.log("Data to submit:", dataWithDepartment);
+      axios.post("http://localhost:3000/employees/upsert", {
+        employees: dataWithDepartment,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+console.log(dataWithDepartment);
 
       toast.success(`تم رفع ${dataWithDepartment.length} سجل بنجاح`);
       // Reset form after successful submission
@@ -126,7 +133,8 @@ console.log(event);
           استيراد البريد الإلكتروني بالجملة
         </CardTitle>
         <CardDescription>
-          قم برفع ملف CSV يحتوي على بيانات البريد الإلكتروني لموظفي اليلديات لإضافتهم إلى النظام
+          قم برفع ملف CSV يحتوي على بيانات البريد الإلكتروني لموظفي اليلديات
+          لإضافتهم إلى النظام
         </CardDescription>
       </CardHeader>
       <CardContent>

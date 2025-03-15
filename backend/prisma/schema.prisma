@@ -36,12 +36,12 @@ model users {
   password      String
   permissions   Json     @default("[]") // Default empty array for permissions
   createdAt     DateTime @default(now())
-  
+
   // Relation to departments
-  departments   departments[] @relation("UserDepartments")
-  
+  departments departments[] @relation("UserDepartments")
+
   // Add this relation
-  auditLogs     auditLogs[]
+  auditLogs auditLogs[]
 }
 
 // Departments model with better relationships
@@ -51,8 +51,8 @@ model departments {
   createdAt    DateTime @default(now())
 
   // Relation to users
-  users        users[]  @relation("UserDepartments")
-  employees    employees[] @relation("EmployeeDepartments")
+  users     users[]     @relation("UserDepartments")
+  employees employees[] @relation("EmployeeDepartments")
 }
 
 // Municipalities model
@@ -60,45 +60,44 @@ model municipalities {
   municipalityId Int      @id
   municipality   String
   createdAt      DateTime @default(now())
-  
+
   // Relation to employeess
-  employees      employees[]
+  employees employees[]
 }
 
 // Employees model with enums and relationships
 model employees {
-  employeeId     Int           @id @default(autoincrement())
+  employeeId     Int            @id @default(autoincrement())
   engname        String
   arname         String
-  departments    Json          @default("[]") // Default empty array for departments
+  departments    Json           @default("[]") // Default empty array for departments
   municipalityId Int
-  email          String?       @default("Unknown") // Nullable email
-  phoneNumber    String?       @default("Unknown") // Nullable phone number
+  email          String?        @unique @default("Unknown") // Nullable email
+  phoneNumber    String?        @default("Unknown") // Nullable phone number
   password       String
   reported       Boolean
   status         EmployeeStatus @default(PENDING) // Enum for status
   notes          String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   // Relations
   municipality   municipalities @relation(fields: [municipalityId], references: [municipalityId])
-  departmentsRel departments[]   @relation("EmployeeDepartments")
+  departmentsRel departments[]  @relation("EmployeeDepartments")
 }
 
 // Audit Log model
 model auditLogs {
-  id          Int         @id @default(autoincrement())
-  userId      Int
-  username    String
-  actionType  ActionType
-  entityType  String      // e.g., "employee", "department", "user"
-  entityId    String?     // ID of the affected entity (if applicable)
-  details     String      // JSON string with action details
-  ipAddress   String?
-  timestamp   DateTime    @default(now())
-  
-  // Relation to users (optional, can be useful for joins)
-  user        users       @relation(fields: [userId], references: [id])
-}
+  id         Int        @id @default(autoincrement())
+  userId     Int
+  username   String
+  actionType ActionType
+  entityType String // e.g., "employee", "department", "user"
+  entityId   String? // ID of the affected entity (if applicable)
+  details    String // JSON string with action details
+  ipAddress  String?
+  timestamp  DateTime   @default(now())
 
+  // Relation to users (optional, can be useful for joins)
+  user users @relation(fields: [userId], references: [id])
+}
