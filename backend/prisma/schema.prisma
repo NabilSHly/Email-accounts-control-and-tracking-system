@@ -70,6 +70,7 @@ model employees {
   employeeId     Int            @id @default(autoincrement())
   engname        String
   arname         String
+  nationalID     String         @unique 
   departments    Json           @default("[]") // Default empty array for departments
   municipalityId Int
   email          String?        @unique @default("Unknown") // Nullable email

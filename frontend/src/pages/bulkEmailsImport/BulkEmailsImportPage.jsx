@@ -75,11 +75,13 @@ export default function BulkEmailsImport() {
       toast.error("الرجاء اختيار القسم");
       return;
     }
+    
 
     // Validate email format for all entries
     const invalidEmails = jsonData.filter(
       (user) => !user.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)
     );
+    
 
     if (invalidEmails.length > 0) {
       toast.error(`يوجد ${invalidEmails.length} بريد إلكتروني غير صالح`);
@@ -90,9 +92,9 @@ export default function BulkEmailsImport() {
     setError("");
 
     try {
-      // Add department ID to each user record
-      const dataWithDepartment = jsonData.map((user) => ({
-        ...user,
+      // Add department ID to each emp record
+      const dataWithDepartment = jsonData.map((emp) => ({
+        ...emp,
         departmentId: selectedDepartment,
       }));
 

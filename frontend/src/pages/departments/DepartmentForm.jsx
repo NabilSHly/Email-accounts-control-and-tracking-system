@@ -20,6 +20,7 @@ export default function DepartmentForm({ onSubmit, onCancel, initialData = { nam
   const handleSubmit = async (data) => {
     try {
       await onSubmit(data);
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
       // Optionally, you can set an error state here to display a message to the user

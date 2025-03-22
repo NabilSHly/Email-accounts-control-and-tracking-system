@@ -56,6 +56,7 @@ const newEmailSchema = z.object({
   arMiddleName: z.string().min(2, { message: 'Middle name must be at least 2 characters.' }),
   arLastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
   departments: z.array(z.number()).min(1, { message: 'Select at least one department.' }),
+  nationalID: z.string().min(12, { message: 'National ID must be at least 12 digits.' }),
   municipalityId: z.number({ message: 'Municipality is required.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
@@ -155,6 +156,7 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
       arFirstName: '',
       arMiddleName: '',
       arLastName: '',
+      nationalID: '',
       departments: [],
       municipalityId: undefined,
       email: '',
@@ -177,12 +179,12 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      console.log(data);
       const fullEngName = `${data.engFirstName} ${data.engFatherName} ${data.engLastName}`;
       const fullArName = `${data.arFirstName} ${data.arMiddleName} ${data.arLastName}`;
       const payload = {
         engname: fullEngName,
         arname: fullArName,
+        nationalID: data.nationalID,
         departments: data.departments,
         municipalityId: data.municipalityId,
         email: data.email,
@@ -215,9 +217,10 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} dir='rtl' className="space-y-6">
         {/* English Name Fields */}
-        <div className="flex gap-6">
+        <div className="flex items-center  gap-6">
+
           <FormField
             control={form.control}
             name="engFirstName"
@@ -260,7 +263,7 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
         </div>
 
         {/* Arabic Name Fields */}
-        <div className="flex gap-6">
+        <div className="flex items-center  gap-6">
           <FormField
             control={form.control}
             name="arFirstName"
@@ -301,6 +304,20 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
             )}
           />
         </div>
+        {/* National ID */}
+        <FormField
+          control={form.control}
+          name="nationalID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>الرقم الوطني</FormLabel>
+              <FormControl>
+                <Input placeholder="الرقم الوطني" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Email & Password */}
         <div className="flex gap-6">

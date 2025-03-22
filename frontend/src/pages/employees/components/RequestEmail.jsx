@@ -66,6 +66,9 @@ const formSchema = z.object({
   arLastName: z
     .string()
     .min(2, { message: "Last name must be at least 2 characters." }),
+  nationalID: z
+    .string()
+    .min(12, { message: "National ID must be at least 12 digits." }),
   departments: z
     .array(z.number())
     .min(1, { message: "Select at least one department." }),
@@ -94,6 +97,7 @@ export default function RequestEmail() {
       arFirstName: "",
       arMiddleName: "",
       arLastName: "",
+      nationalID: "",
       departments: [], // Initialize as empty array
       municipalityId: undefined,
       phoneNumber: "",
@@ -291,6 +295,21 @@ export default function RequestEmail() {
                     )}
                   />
                 </div>
+
+                {/* National ID */}
+                <FormField
+                  control={form.control}
+                  name="nationalID"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الرقم الوطني</FormLabel>
+                      <FormControl>
+                        <Input placeholder="رقم الوطني" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 {/* Phone Number */}
                 <FormField

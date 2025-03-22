@@ -19,11 +19,11 @@ export default function AddMunForm({ onSubmit, onCancel, initialData = { name: "
   })
 
   const handleSubmit = async (data) => {
-    console.log(data);
     
     
     try {
       await onSubmit(data);
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
       // Optionally, you can set an error state here to display a message to the user

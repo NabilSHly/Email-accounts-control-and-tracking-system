@@ -7,6 +7,7 @@ const createEmployee = async (req, res, next) => {
     const { 
       engname, 
       arname, 
+      nationalID,
       departments, 
       municipalityId, 
       email, 
@@ -28,6 +29,7 @@ const createEmployee = async (req, res, next) => {
       data: {
         engname,
         arname,
+        nationalID,
         departments: { set: deptArray },
         municipalityId: parseInt(municipalityId),
         email: email || 'Unknown',
@@ -51,6 +53,7 @@ const adminCreateEmployeeWithEmail = async (req, res, next) => {
     const { 
       engname, 
       arname, 
+      nationalID,
       departments, 
       municipalityId, 
       email, 
@@ -71,6 +74,7 @@ const adminCreateEmployeeWithEmail = async (req, res, next) => {
       data: {
         engname,
         arname,
+        nationalID,
         departments: { set: deptArray },
         municipalityId: parseInt(municipalityId),
         email,
@@ -94,6 +98,7 @@ const requestEmployeeEmail = async (req, res, next) => {
     const { 
       engname, 
       arname, 
+      nationalID,
       departments, 
       municipalityId, 
       phoneNumber, 
@@ -115,6 +120,7 @@ const requestEmployeeEmail = async (req, res, next) => {
       data: {
         engname,
         arname,
+        nationalID,
         departments: { set: deptArray },
         municipalityId: parseInt(municipalityId),
         email: 'Unknown', // Email is unknown until admin creates it
@@ -228,6 +234,7 @@ const updateEmployee = async (req, res, next) => {
   const { 
     engname, 
     arname, 
+    nationalID,
     departments, 
     municipalityId, 
     email, 
@@ -250,6 +257,7 @@ const updateEmployee = async (req, res, next) => {
       data: {
         engname,
         arname,
+        nationalID,
         departments: { set: deptArray },
         municipalityId: municipalityId ? parseInt(municipalityId) : undefined,
         email,
@@ -416,6 +424,7 @@ const upsertEmployees = async (req, res) => {
           data: {
             engname: employee.nameInEnglish,
             arname: employee.nameInArabic,
+            nationalID: employee.nationalID,
             email: employee.email,
             password: employee.password,
             phoneNumber: employee.phoneNumber,

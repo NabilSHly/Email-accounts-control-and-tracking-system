@@ -17,7 +17,7 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const fileInputRef = useRef(null)
 
-  const columnLabels = ["Name (English)", "Name (Arabic)", "Email", "Password", "Phone Number", "Municipality ID"]
+  const columnLabels = ["Name (English)", "Name (Arabic)","National ID", "Email", "Password", "Phone Number", "Municipality ID"]
   
   const expectedHeaders = columnLabels
 
@@ -43,7 +43,7 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
     const invalidEmails = []
 
     data.forEach((row, index) => {
-      const email = row[2] // Email is in the third column
+      const email = row[3] // Email is in the third column
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         invalidEmails.push({ row: index + 2, email }) // +2 because index is 0-based and we skip header row
       }
@@ -104,13 +104,13 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
             : `${invalidEmails.length} بريد إلكتروني غير صالح. الرجاء التحقق من الصفوف: ${invalidEmails
                 .slice(0, 3)
                 .map((e) => e.row)
-                .join(", ")}${invalidEmails.length > 3 ? "..." : ""}`
+                .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`
           : invalidEmails.length === 1
             ? `Invalid email in row ${invalidEmails[0].row}: ${invalidEmails[0].email}`
             : `${invalidEmails.length} invalid emails. Please check rows: ${invalidEmails
                 .slice(0, 3)
                 .map((e) => e.row)
-                .join(", ")}${invalidEmails.length > 3 ? "..." : ""}`
+                .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`
 
         setError(message)
         // We still load the data so they can see and fix the issues
@@ -123,10 +123,13 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
         return {
           nameInEnglish: row[0] || "",
           nameInArabic: row[1] || "",
-          email: row[2] || "",
-          password: row[3] || "",
-          phoneNumber: row[4] || "",
-          municipalityID: row[5] || "",
+          nationalID: row[2] || "",
+          email: row[3] || "",
+          password: row[4] || "",
+          phoneNumber: row[5] || "",
+          municipalityID: row[6] || "",
+
+          
         }
       })
 

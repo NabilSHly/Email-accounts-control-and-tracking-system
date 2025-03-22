@@ -113,6 +113,7 @@ console.log(userPermissions);
   const columnLabels = {
     engname: "الاسم بالانجليزي",
     arname: "الاسم بالعربي",
+    nationalID: "الرقم الوطني",
     email: "البريد الالكتروني",
     phoneNumber: "رقم الهاتف",
     status: "الحالة",
@@ -154,6 +155,10 @@ console.log(userPermissions);
     {
       accessorKey: "arname",
       header: "الاسم بالعربي",
+    },
+    {
+      accessorKey: "nationalID",
+      header: "الرقم الوطني",
     },
     {
       accessorKey: "email",
@@ -368,7 +373,7 @@ console.log(userPermissions);
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
-                  <TableHead key={header.id} className="text-center text-black  border-r border-gray-200">
+                  <TableHead key={header.id} className="text-center text-gray-700 text-lg  border-r border-gray-200">
                     {header.isPlaceholder ? null : 
                       flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
