@@ -15,6 +15,7 @@ import { PlusCircle, Search, Edit, Trash2 } from "lucide-react";
 import  DepartmentForm  from "./DepartmentForm";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState([]);
@@ -43,7 +44,7 @@ export default function DepartmentsPage() {
     const fetchDepartments = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("http://localhost:3000/departments", {
+        const response = await axios.get(`${API_URL}/departments`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -88,7 +89,7 @@ export default function DepartmentsPage() {
   
       // Make a POST request to the backend endpoint.
       const response = await axios.post(
-        "http://localhost:3000/departments",
+        `${API_URL}/departments`,
         { name: values.name },
         {
           headers: {
@@ -134,7 +135,7 @@ export default function DepartmentsPage() {
       // Note: Although your form field is named "name", your backend maps this to the "category" field
       // in the database. Ensure that your backend controller handles this correctly.
       const response = await axios.put(
-        `http://localhost:3000/departments/${editingDepartment.departmentId}`,
+        `${API_URL}/departments/${editingDepartment.departmentId}`,
         { name: values.name },
         {
           headers: {
@@ -170,7 +171,7 @@ export default function DepartmentsPage() {
   const handleDeleteDepartment= async (id) => {
     if (!window.confirm("هل أنت متأكد أنك تريد حذف هذا القسم؟")) return;
     try {
-      await axios.delete(`http://localhost:3000/departments/${id}`, {
+      await axios.delete(`${API_URL}/departments/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
@@ -181,7 +182,6 @@ export default function DepartmentsPage() {
       setError("Failed to delete department. Please try again.");
     }
   };
-
   return (
     <div className="p-6 bg-pIsabelline w-3/4 mt-12  border rounde">
     <h1 className="text-2xl font-bold mb-5"> قائمة الاقسام</h1>
@@ -230,7 +230,7 @@ export default function DepartmentsPage() {
               <TableRow key={department.departmentId} className="border">
                 <TableCell className="font-medium text-center">{department.department}</TableCell>
                 <TableCell className="font-medium text-center">
-                  <div className="flex space-x-2 justify-center">
+                  <div className="flex gap-4 items-center justify-center">
                     <Button
                       variant="outline"
                       size="icon"
@@ -244,6 +244,8 @@ export default function DepartmentsPage() {
                     <Button
                       variant="outline"
                       size="icon"
+                      className="bg-rose-500 text-white"
+
                       onClick={() => handleDeleteDepartment(department.departmentId)}
                     >
                       <Trash2 className="h-4 w-4" />

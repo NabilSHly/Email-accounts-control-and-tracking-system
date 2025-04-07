@@ -44,6 +44,7 @@ import { Loader2, Plus, RefreshCw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+const API_URL = import.meta.env.VITE_API_URL;
 
 /* ====================
    Validation Schemas
@@ -86,13 +87,13 @@ const useFetchData = () => {
     const fetchData = async () => {
       try {
           const [deptResponse, muniResponse, pendingResponse] = await Promise.all([
-            axios.get(`http://localhost:3000/departments`, {
+            axios.get(`${API_URL}/departments`, {
               headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             }),
-            axios.get(`http://localhost:3000/municipalities`, {
+            axios.get(`${API_URL}/municipalities`, {
               headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             }),
-            axios.get(`http://localhost:3000/employees/pending`, {
+            axios.get(`${API_URL}/employees/pending`, {
               headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             }),
           ]);
@@ -194,7 +195,7 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
       };
       
 
-        await axios.post(`http://localhost:3000/employees/admin`, payload, {
+        await axios.post(`${API_URL}/employees/admin`, payload, {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         });
       toast.success('تم إنشاء البريد الإلكتروني', {
@@ -487,7 +488,7 @@ console.log(selectedRequest,"dd");
     setIsSubmitting(true);
     try {
         await axios.post(
-          `http://localhost:3000/employees/${data.requestId}/approve`,
+          `${API_URL}/employees/${data.requestId}/approve`,
           {
             email: data.email,
             password: data.password,

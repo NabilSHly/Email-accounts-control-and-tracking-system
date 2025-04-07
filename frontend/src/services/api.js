@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Create a configured axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: `${API_URL}`, // Base URL for the API
   headers: {
     'Content-Type': 'application/json',
   },

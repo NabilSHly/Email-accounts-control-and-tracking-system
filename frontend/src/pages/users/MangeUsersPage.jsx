@@ -15,6 +15,7 @@ import {
 import CreateUserForm from './CreateUserForm';
 import UpdateUserForm from './UpdateUserForm';
 import { toast } from 'sonner';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function MangeUsersPage() {
   const [users, setUsers] = useState([]);
@@ -32,13 +33,13 @@ export default function MangeUsersPage() {
       const token = localStorage.getItem("authToken");
       console.log( token);
        // Get the token from local storage
-      const response = await axios.get('http://localhost:3000/users', {
+      const response = await axios.get(`${API_URL}/users`, {
         headers: {
           Authorization: `Bearer ${token}`, // Set the Authorization header
         },
       });
       setUsers(response.data);
-      console.log(response.data);
+      
       
     } catch (error) {
       setError(error.response?.data?.message || "Failed to fetch users");
@@ -101,8 +102,8 @@ export default function MangeUsersPage() {
                     <TableCell className="border font-bold text-lg text-center">
                       الصلاحيات
                     </TableCell>
-                    <TableCell className="border text-center">
-                      {/* تعديل */}
+                    <TableCell className="border font-bold text-lg text-center">
+                      Actions
                     </TableCell>
                   </TableRow>
                 </TableHeader>
@@ -120,18 +121,29 @@ export default function MangeUsersPage() {
 
                       
 
-                      <TableCell className="border text-center">
+                      <TableCell className="border font-bold text-center">
                         {user.permissions.join(", ")}
                       </TableCell>
 
-                      <TableCell className="border flex items-center justify-evenly text-center">
+                      <TableCell className="border flex gap-4 items-center justify-center ">
+                       
+                      <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setEditingUser(user);
+                            setIsEditDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="outline"
                           className="bg-rose-500 text-white"
                           size="icon"
                           onClick={() => {
                             // Delete the user
-                            axios.delete(`http://localhost:3000/users/${user.id}`, {
+                            axios.delete(`${API_URL}/users/${user.id}`, {
                               headers: {
                                 Authorization: `Bearer ${localStorage.getItem(
                                   "authToken"
@@ -153,16 +165,6 @@ export default function MangeUsersPage() {
                             })}}
                         >
                           <Trash className="h-4 w-4" />
-                        </Button>
-                      <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setEditingUser(user);
-                            setIsEditDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>

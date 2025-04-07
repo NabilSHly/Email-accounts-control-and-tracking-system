@@ -43,6 +43,7 @@ const formSchema = z.object({
   departmentsId: z.array(z.number()).nonempty("Please select at least one department"),
   permissions: z.array(z.string()).min(1, "Please select at least one permission"),
 });
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 export default function CreateUserForm() {
@@ -62,7 +63,7 @@ export default function CreateUserForm() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/departments', {
+        const response = await axios.get(`${API_URL}/departments`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -80,7 +81,7 @@ export default function CreateUserForm() {
   const onSubmit = async (values) => {
     try {
       console.log(values);
-      await axios.post('http://localhost:3000/users', values, {
+      await axios.post(`${API_URL}/users`, values, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },

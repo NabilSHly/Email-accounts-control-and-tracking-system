@@ -3,6 +3,8 @@ import { useNavigate } from "react-router"; // Ensure correct import for React R
 import AuthContext from "../../context/AuthContext"; // Import context
 import axios from "axios"; // Import Axios
 import {Button} from "@/components/ui/button"; // Import Button component
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -25,7 +27,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/login",
+        `${API_URL}/auth/login`,
         { username, password },
         {
           headers: {

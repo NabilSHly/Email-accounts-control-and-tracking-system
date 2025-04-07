@@ -23,6 +23,8 @@ export default function EditMunForm({ onSubmit, onCancel, name }) {
   const handleSubmit = async (data) => {
     try {
       await onSubmit(data);
+      window.location.reload();
+
     } catch (error) {
       console.error("Error submitting form:", error);
     }

@@ -61,6 +61,7 @@ const entityBadgeVariants = {
   municipality: "outline",
   user: "destructive"
 };
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Helper function to format dates without date-fns
 const formatDate = (date) => {
@@ -115,7 +116,7 @@ export default function AuditLogs() {
         }
       });
       
-      const response = await axios.get(`http://localhost:3000/audit-logs`, {
+      const response = await axios.get(`${API_URL}/audit-logs`, {
         params,
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });

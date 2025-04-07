@@ -8,6 +8,7 @@ import AddMunForm from "./AddMunForm"; // Ensure the AddMunForm is properly impl
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import EditMunForm from "./EditMunForm"; // Import the new EditMunForm component
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function MunicipalitiesPage() {
   const [municipalities, setMunicipalities] = useState([]);
@@ -38,12 +39,11 @@ export default function MunicipalitiesPage() {
     const fetchMunicipalities = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("http://localhost:3000/municipalities", {
+        const response = await axios.get(`${API_URL}/municipalities`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
-console.log("x",response);
 
         setMunicipalities(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
@@ -82,7 +82,7 @@ console.log("x",response);
       setError(""); // Reset error state before making the request
 
       const response = await axios.post(
-        "http://localhost:3000/municipalities",
+        `${API_URL}/municipalities`,
         { municipality: values.name,
           municipalityId: values.id
           
@@ -126,7 +126,7 @@ console.log(values);
       setIsLoading(true);
 
       const response = await axios.put(
-        `http://localhost:3000/municipalities/${editingMunicipality.municipalityId}`,
+        `${API_URL}/municipalities/${editingMunicipality.municipalityId}`,
         { municipality: values.name,
          },
         {
@@ -159,7 +159,7 @@ console.log(values);
     try {
       console.log(id);
       
-      await axios.delete(`http://localhost:3000/municipalities/${id}`, {
+      await axios.delete(`${API_URL}/municipalities/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
@@ -214,6 +214,9 @@ console.log(values);
             <TableHead className="text-center text-black">الرقم التنظيمي</TableHead>
 
               <TableHead className="text-center text-black">اسم البلدية</TableHead>
+              <TableCell className=" font-bold  text-center">
+                                    Actions
+                                  </TableCell>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y border content-center">
@@ -223,7 +226,7 @@ console.log(values);
                   <TableCell className="font-medium text-center">{municipality.municipalityId}</TableCell>
                   <TableCell className="font-medium text-center">{municipality.municipality}</TableCell>
                   <TableCell className="font-medium text-center">
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex gap-4  justify-center">
                       <Button
                         variant="outline"
                         size="icon"
@@ -236,6 +239,8 @@ console.log(values);
                       </Button>
                       <Button
                         variant="outline"
+                        className="bg-rose-500 text-white"
+
                         size="icon"
                         onClick={() => handleDeleteMunicipality(municipality.municipalityId)}
                       >

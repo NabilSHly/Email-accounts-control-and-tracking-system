@@ -104,7 +104,11 @@ export function EmployeeEditForm({
     try {
       console.log("Updating employee:", data);
       await updateEmployee(employee.employeeId, data);
+
+      window.location.reload();
       toast.success("تم تحديث بيانات الموظف بنجاح");
+        
+
     } catch (error) {
       console.error("Update failed:", error);
     }

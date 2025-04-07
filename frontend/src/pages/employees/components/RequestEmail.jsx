@@ -45,6 +45,7 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fetchMunicipalities, fetchDepartments } from "@/services/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Form validation schema
 const formSchema = z.object({
@@ -140,7 +141,7 @@ export default function RequestEmail() {
   
       // Prepare the data for the request
       const response = await axios.post(
-        `http://localhost:3000/employees/request`,
+        `${API_URL}/employees/request`,
         { 
           ...data,
           engname: `${data.engFirstName} ${data.engFatherName} ${data.engLastName}`,

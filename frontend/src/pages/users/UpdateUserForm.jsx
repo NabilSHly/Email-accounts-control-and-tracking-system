@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/multi-select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Define permissions
 const permissions = [
@@ -60,7 +61,7 @@ export default function UpdateUserForm({ userId }) {
     const fetchData = async () => {
       try {
         // Fetch user data
-        const userResponse = await axios.get(`http://localhost:3000/users/${userId}`, {
+        const userResponse = await axios.get(`${API_URL}/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -69,7 +70,7 @@ export default function UpdateUserForm({ userId }) {
 console.log(userData);
 
         // Fetch departments
-        const response = await axios.get('http://localhost:3000/departments', {
+        const response = await axios.get(`${API_URL}/departments`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
@@ -102,7 +103,7 @@ console.log(userData);
   const onSubmit = async (values) => {
     try {
       // Simulating API call to update user
-      const response = await axios.put(`http://localhost:3000/users/${userId}`, values, {
+      const response = await axios.put(`${API_URL}/users/${userId}`, values, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },

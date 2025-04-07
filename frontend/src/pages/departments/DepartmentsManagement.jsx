@@ -50,6 +50,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Form validation schema
 const departmentSchema = z.object({
@@ -87,7 +88,7 @@ export default function DepartmentsManagement() {
   const fetchDepartments = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/departments`, {
+      const response = await axios.get(`${API_URL}/departments`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       setDepartments(response.data);
@@ -110,7 +111,7 @@ export default function DepartmentsManagement() {
   const handleAddDepartment = async (data) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/departments`, data, {
+      const response = await axios.post(`${API_URL}/departments`, data, {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       
@@ -139,7 +140,7 @@ export default function DepartmentsManagement() {
     setIsSubmitting(true);
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/departments/${data.departmentId}`, 
+        `${API_URL}/departments/${data.departmentId}`, 
         { department: data.department },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
@@ -174,7 +175,7 @@ export default function DepartmentsManagement() {
     
     setIsSubmitting(true);
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/departments/${departmentToDelete}`, {
+      await axios.delete(`${API_URL}/departments/${departmentToDelete}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
       });
       

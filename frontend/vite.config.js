@@ -4,6 +4,10 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: true,
+    open: true,
+  },
   plugins: [react()],
   resolve: {
     alias: {

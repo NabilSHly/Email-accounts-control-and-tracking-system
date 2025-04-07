@@ -21,6 +21,7 @@ import { Loader2, Info } from "lucide-react";
 import CsvUploader from "./components/csv-uploader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function BulkEmailsImport() {
   const [jsonData, setJsonData] = useState([]);
@@ -100,7 +101,7 @@ export default function BulkEmailsImport() {
 
       // Here you would implement the API call to add users
       // await addUsersFromCSV(dataWithDepartment);
-      axios.post("http://localhost:3000/employees/upsert", {
+      axios.post(`${API_URL}/employees/upsert`, {
         employees: dataWithDepartment,
       }, {
         headers: {
