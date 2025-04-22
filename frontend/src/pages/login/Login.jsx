@@ -4,6 +4,7 @@ import AuthContext from "../../context/AuthContext"; // Import context
 import axios from "axios"; // Import Axios
 import {Button} from "@/components/ui/button"; // Import Button component
 const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_URL); // Log the API URL for debugging
 
 
 const Login = () => {

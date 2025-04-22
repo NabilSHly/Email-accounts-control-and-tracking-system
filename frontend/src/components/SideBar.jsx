@@ -16,7 +16,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Component, MapPinned, History, Landmark, Mail, Plus, MailPlus, LayoutDashboard } from 'lucide-react';
 
-export default function Sidebar({userPremissions}) {
+export default function Sidebar({userPremissions=[]}) {
   const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const toggleDrawer = (newOpen) => () => {

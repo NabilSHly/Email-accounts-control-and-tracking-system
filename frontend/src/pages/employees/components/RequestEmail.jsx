@@ -75,13 +75,14 @@ const formSchema = z.object({
     .min(1, { message: "Select at least one department." }),
   municipalityId: z.number({ message: "Municipality is required." }),
   phoneNumber: z
-     .string().max(10,{message:'Phone number must be  10 digits.'})
-     .min(10, { message: 'Phone number must be  10 digits.' })
-     .regex(/^[0-9]+$/, { message: 'Phone number must contain only digits.' }).startsWith('09', {
-       message:"لازم يبدا ب 09"
-     }),
+      .string().max(10,{message:'لازم اقل من 10 ارقام يا حاتم (>_<).'})
+      .min(10, { message: 'Phone number must be at least 10 digits.' })
+      .regex(/^[0-9]+$/, { message: 'Phone number must contain only digits.' }).startsWith('09', {
+        message:"لازم يبدا ب 09"
+      }),
   notes: z.string().optional(),
 });
+
 
 export default function RequestEmail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
