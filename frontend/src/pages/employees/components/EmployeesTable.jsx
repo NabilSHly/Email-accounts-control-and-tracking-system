@@ -211,7 +211,15 @@ console.log(userPermissions);
     {
       accessorKey: "createdAt",
       header: "تاريخ الانشاء",
-      cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleDateString("en-GB"),
+      cell: ({ row }) =>
+        new Date(row.getValue("createdAt")).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
     },
     ...(userPermissions.includes('ADMIN') ? [
       {

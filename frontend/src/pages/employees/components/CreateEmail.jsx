@@ -62,10 +62,11 @@ const newEmailSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
   phoneNumber: z
-    .string()
+    .string().max(10,{message:'لازم اقل من 10 ارقام يا حاتم (>_<).'})
     .min(10, { message: 'Phone number must be at least 10 digits.' })
-    .regex(/^[0-9]+$/, { message: 'Phone number must contain only digits.' })
-    .optional(),
+    .regex(/^[0-9]+$/, { message: 'Phone number must contain only digits.' }).startsWith('09', {
+      message:"لازم يبدا ب 09"
+    }),
   notes: z.string().optional(),
 });
 
@@ -358,7 +359,7 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
             <FormItem>
               <FormLabel>رقم الهاتف</FormLabel>
               <FormControl>
-                <Input placeholder="05xxxxxxxx" type="tel" pattern="[0-9]*" {...field} />
+                <Input placeholder="09xxxxxxxx" type="tel" pattern="[0-9]*" {...field} />
               </FormControl>
               <FormDescription>رقم الهاتف للتواصل مع الموظف</FormDescription>
               <FormMessage />
@@ -454,7 +455,7 @@ const NewEmailForm = ({ departments, municipalities, onSuccess }) => {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isSubmitting || !form.formState.isValid}>
+        <Button type="submit" className="w-full" disabled={isSubmitting }>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -595,8 +596,8 @@ console.log(selectedRequest,"dd");
             )}
           />
         </div>
-
-        <Button type="submit" className="w-full" disabled={isSubmitting || !form.formState.isValid}>
+        {/* disabled={isSubmitting || !form.formState.isValid} */}
+        <Button type="submit" className="w-full" >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
