@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useLocation } from 'react-router';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -614,9 +616,12 @@ console.log(selectedRequest,"dd");
 
 
 export default function CreateEmail() {
-  const [activeTab, setActiveTab] = useState('new');
+  
+  const location = useLocation();
+  const defaultTab = location.state?.activeTab || 'new';
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  
   const { departments, municipalities, pendingRequests, setPendingRequests } = useFetchData();
-  console.log({ departments, municipalities, pendingRequests, setPendingRequests });
   
   const [selectedRequest, setSelectedRequest] = useState(null);
 

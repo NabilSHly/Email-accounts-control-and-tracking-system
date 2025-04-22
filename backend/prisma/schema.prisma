@@ -83,7 +83,7 @@ model employees {
   updatedAt      DateTime       @updatedAt
 
   // Relations
-  municipality   municipalities @relation(fields: [municipalityId], references: [municipalityId])
+  municipality   municipalities @relation(fields: [municipalityId], references: [municipalityId], onDelete: Cascade)
   departmentsRel departments[]  @relation("EmployeeDepartments")
 }
 

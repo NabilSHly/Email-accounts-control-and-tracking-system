@@ -156,6 +156,7 @@ export default function Dashboard() {
             {stats.pendingRequests > 0 && userData?.permissions?.includes('ADMIN') && (
               <Link 
                 to="/employees/create" 
+                state={{ activeTab: 'pending' }}
                 className="text-xs text-primary hover:underline mt-2 block"
               >
                 عرض الطلبات المعلقة

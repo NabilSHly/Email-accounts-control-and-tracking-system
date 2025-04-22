@@ -10,7 +10,9 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Municipality name must be at least 2 characters.",
   }),
-  id: z.string().optional(),
+  id: z.string().min(3, {
+    message: "الرقم التنظيمي يجب أن يكون 3 أرقام على الأقل.",
+  }),
 })
 export default function AddMunForm({ onSubmit, onCancel, initialData = { name: "", id: "" }}) {
   const form = useForm({

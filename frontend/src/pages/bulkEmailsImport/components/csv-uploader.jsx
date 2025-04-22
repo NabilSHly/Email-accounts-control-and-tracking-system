@@ -1,248 +1,338 @@
-"use client"
+import { useState, useRef, useCallback } from "react";
+import Papa from "papaparse";
+import Spreadsheet from "react-spreadsheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Upload, FileType, AlertCircle, Download, X } from "lucide-react";
+import { z } from "zod";
+const csvRowSchema = z.object({
+  nameInEnglish: z.string().min(1, "Name (English) is required"),
+  nameInArabic: z
+  .string()
+  .regex(/^[\u0600-\u06FF\s]+$/, "الاسم بالعربية يجب أن يحتوي على أحرف عربية فقط")
+  .min(1, "الاسم بالعربية مطلوب"),
 
-import { useState, useRef, useCallback } from "react"
-import Papa from "papaparse"
-import Spreadsheet from "react-spreadsheet"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { Upload, FileType, AlertCircle, Download, X } from 'lucide-react'
+  nationalID: z
+  .string()
+  .regex(/^\d{12}$/, "National ID must be exactly 12 digits"),
+
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  phoneNumber: z
+  .string()
+  .regex(/^09\d{8}$/, "Phone number must start with 09 and be 10 digits long"),
+  municipalityID: z
+  .string()
+  .regex(/^\d{3}$/, "Municipality ID must be exactly 3 digits"),
+
+});
 
 const CsvUploader = ({ setJsonData, language = "ar" }) => {
-  const [file, setFile] = useState(null)
-  const [fileName, setFileName] = useState("")
-  const [error, setError] = useState("")
-  const [csvData, setCsvData] = useState([])
-  const [isDragging, setIsDragging] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const fileInputRef = useRef(null)
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [error, setError] = useState("");
+  const [csvData, setCsvData] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const columnLabels = ["Name (English)", "Name (Arabic)","National ID", "Email", "Password", "Phone Number", "Municipality ID"]
-  
-  const expectedHeaders = columnLabels
+  const columnLabels = [
+    "Name (English)",
+    "Name (Arabic)",
+    "National ID",
+    "Email",
+    "Password",
+    "Phone Number",
+    "Municipality ID",
+  ];
+
+  const expectedHeaders = columnLabels;
 
   const data = csvData.map((row) => {
-    return row.map((cell) => ({ value: cell }))
-  })
+    return row.map((cell) => ({ value: cell }));
+  });
 
-  const validateCSVStructure = useCallback((headers) => {
-    // Case insensitive match
-    const normalizedHeaders = headers.map((h) => h.trim().toLowerCase())
-    const normalizedExpected = expectedHeaders.map((h) => h.trim().toLowerCase())
+  const validateCSVStructure = useCallback(
+    (headers) => {
+      // Case insensitive match
+      const normalizedHeaders = headers.map((h) => h.trim().toLowerCase());
+      const normalizedExpected = expectedHeaders.map((h) =>
+        h.trim().toLowerCase()
+      );
 
-    return (
-      normalizedHeaders.length >= normalizedExpected.length &&
-      normalizedExpected.every(
-        (header, index) =>
-          normalizedHeaders[index].includes(header) || normalizedHeaders[index].includes(header.replace(" ", "")),
-      )
-    )
-  }, [expectedHeaders])
+      return (
+        normalizedHeaders.length >= normalizedExpected.length &&
+        normalizedExpected.every(
+          (header, index) =>
+            normalizedHeaders[index].includes(header) ||
+            normalizedHeaders[index].includes(header.replace(" ", ""))
+        )
+      );
+    },
+    [expectedHeaders]
+  );
 
   const validateEmailFormat = useCallback((data) => {
-    const invalidEmails = []
+    const invalidEmails = [];
 
     data.forEach((row, index) => {
-      const email = row[3] // Email is in the third column
+      const email = row[3]; // Email is in the third column
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        invalidEmails.push({ row: index + 2, email }) // +2 because index is 0-based and we skip header row
+        invalidEmails.push({ row: index + 2, email }); // +2 because index is 0-based and we skip header row
       }
-    })
+    });
 
-    return invalidEmails
-  }, [])
+    return invalidEmails;
+  }, []);
 
-  const processFile = useCallback(async (selectedFile) => {
-    if (!selectedFile) return
+  const processFile = useCallback(
+    async (selectedFile) => {
+      if (!selectedFile) return;
 
-    if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
-      setError(language === "ar" ? "الرجاء اختيار ملف CSV فقط." : "Please select only CSV files.")
-      setFile(null)
-      setFileName("")
-      return
-    }
-
-    setError("")
-    setFile(selectedFile)
-    setFileName(selectedFile.name)
-    setIsProcessing(true)
-
-    try {
-      const results = await new Promise((resolve, reject) => {
-        Papa.parse(selectedFile, {
-          encoding: "UTF-8",
-          skipEmptyLines: true,
-          complete: resolve,
-          error: reject,
-        })
-      })
-
-      const headers = results.data[0]
-      const rows = results.data.slice(1).filter(row => row.some(cell => cell.trim() !== "")) // Filter out empty rows
-
-      // Validate CSV structure
-      if (!validateCSVStructure(headers)) {
-        const errorMsg = language === "ar" 
-          ? `يجب أن يحتوي ملف CSV على الأعمدة التالية: ${expectedHeaders.join(", ")}`
-          : `CSV file must contain the following columns: ${expectedHeaders.join(", ")}`
-        
-        setError(errorMsg)
-        setFile(null)
-        setFileName("")
-        setCsvData([])
-        setJsonData([])
-        setIsProcessing(false)
-        return
+      if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
+        setError(
+          language === "ar"
+            ? "الرجاء اختيار ملف CSV فقط."
+            : "Please select only CSV files."
+        );
+        setFile(null);
+        setFileName("");
+        return;
       }
 
-      // Validate email format
-      const invalidEmails = validateEmailFormat(rows)
-      if (invalidEmails.length > 0) {
-        const message = language === "ar"
-          ? invalidEmails.length === 1
-            ? `بريد إلكتروني غير صالح في الصف ${invalidEmails[0].row}: ${invalidEmails[0].email}`
-            : `${invalidEmails.length} بريد إلكتروني غير صالح. الرجاء التحقق من الصفوف: ${invalidEmails
-                .slice(0, 3)
-                .map((e) => e.row)
-                .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`
-          : invalidEmails.length === 1
-            ? `Invalid email in row ${invalidEmails[0].row}: ${invalidEmails[0].email}`
-            : `${invalidEmails.length} invalid emails. Please check rows: ${invalidEmails
-                .slice(0, 3)
-                .map((e) => e.row)
-                .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`
+      setError("");
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+      setIsProcessing(true);
 
-        setError(message)
-        // We still load the data so they can see and fix the issues
-      }
+      try {
+        const results = await new Promise((resolve, reject) => {
+          Papa.parse(selectedFile, {
+            encoding: "UTF-8",
+            skipEmptyLines: true,
+            complete: resolve,
+            error: reject,
+          });
+        });
 
-      setCsvData(rows)
+        const headers = results.data[0];
+        const rows = results.data
+          .slice(1)
+          .filter((row) => row.some((cell) => cell.trim() !== "")); // Filter out empty rows
 
-      // Map data for json output
-      const jsonData = rows.map((row) => {
-        return {
-          nameInEnglish: row[0] || "",
-          nameInArabic: row[1] || "",
-          nationalID: row[2] || "",
-          email: row[3] || "",
-          password: row[4] || "",
-          phoneNumber: row[5] || "",
-          municipalityID: row[6] || "",
+        // Validate CSV structure
+        if (!validateCSVStructure(headers)) {
+          const errorMsg =
+            language === "ar"
+              ? `يجب أن يحتوي ملف CSV على الأعمدة التالية: ${expectedHeaders.join(
+                  ", "
+                )}`
+              : `CSV file must contain the following columns: ${expectedHeaders.join(
+                  ", "
+                )}`;
 
-          
+          setError(errorMsg);
+          setFile(null);
+          setFileName("");
+          setCsvData([]);
+          setJsonData([]);
+          setIsProcessing(false);
+          return;
         }
-      })
 
-      setJsonData(jsonData)
-      toast.success(
-        language === "ar" 
-          ? `تم تحميل ${jsonData.length} سجل بنجاح` 
-          : `Successfully loaded ${jsonData.length} records`
-      )
-    } catch (error) {
-      console.error("Error parsing CSV:", error)
-      setError(
-        language === "ar" 
-          ? "حدث خطأ أثناء تحليل ملف CSV." 
-          : "An error occurred while parsing the CSV file."
-      )
-      setFile(null)
-      setFileName("")
-      setCsvData([])
-      setJsonData([])
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [language, setJsonData, validateCSVStructure, validateEmailFormat])
+        // Validate email format
+        const invalidEmails = validateEmailFormat(rows);
+        if (invalidEmails.length > 0) {
+          const message =
+            language === "ar"
+              ? invalidEmails.length === 1
+                ? `بريد إلكتروني غير صالح في الصف ${invalidEmails[0].row}: ${invalidEmails[0].email}`
+                : `${
+                    invalidEmails.length
+                  } بريد إلكتروني غير صالح. الرجاء التحقق من الصفوف: ${invalidEmails
+                    .slice(0, 3)
+                    .map((e) => e.row)
+                    .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`
+              : invalidEmails.length === 1
+              ? `Invalid email in row ${invalidEmails[0].row}: ${invalidEmails[0].email}`
+              : `${
+                  invalidEmails.length
+                } invalid emails. Please check rows: ${invalidEmails
+                  .slice(0, 3)
+                  .map((e) => e.row)
+                  .join(", ")}${invalidEmails.length > 2 ? "..." : ""}`;
+
+          setError(message);
+          // We still load the data so they can see and fix the issues
+        }
+
+        setCsvData(rows);
+
+        // Map data for json output
+        const validData = [];
+        const validationErrors = [];
+
+        rows.forEach((row, index) => {
+          const rowData = {
+            nameInEnglish: row[0]?.trim() || "",
+            nameInArabic: row[1]?.trim() || "",
+            nationalID: row[2]?.trim() || "",
+            email: row[3]?.trim() || "",
+            password: row[4]?.trim() || "",
+            phoneNumber: row[5]?.trim() || "",
+            municipalityID: row[6]?.trim() || "",
+          };
+
+          const result = csvRowSchema.safeParse(rowData);
+
+          if (result.success) {
+            validData.push(result.data);
+          } else {
+            validationErrors.push({
+              row: index + 2, // CSV rows start from 1, +1 for header
+              messages: result.error.issues.map((i) => i.message),
+            });
+          }
+        });
+        if (validationErrors.length > 0) {
+          const preview = validationErrors
+            .slice(0, 3)
+            .map((err) => `Row ${err.row}: ${err.messages.join(", ")}`)
+            .join("\n");
+
+          toast.error(
+            language === "ar"
+              ? `تم العثور على ${validationErrors.length} صفوف غير صالحة.\n${preview}`
+              : `Found ${validationErrors.length} invalid rows.\n${preview}`
+          );
+        }
+        setCsvData(rows);
+        setJsonData(validData);
+
+        toast.success(
+          language === "ar"
+            ? `تم تحميل ${validData.length} سجل بنجاح`
+            : `Successfully loaded ${validData.length} records`
+        );
+        
+      } catch (error) {
+        console.error("Error parsing CSV:", error);
+        setError(
+          language === "ar"
+            ? "حدث خطأ أثناء تحليل ملف CSV."
+            : "An error occurred while parsing the CSV file."
+        );
+        setFile(null);
+        setFileName("");
+        setCsvData([]);
+        setJsonData([]);
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [language, setJsonData, validateCSVStructure, validateEmailFormat]
+  );
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files?.[0]
+    const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      processFile(selectedFile)
+      processFile(selectedFile);
     }
-  }
+  };
 
   const handleDragOver = (event) => {
-    event.preventDefault()
-    setIsDragging(true)
-  }
+    event.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (event) => {
-    event.preventDefault()
-    setIsDragging(false)
-  }
+    event.preventDefault();
+    setIsDragging(false);
+  };
 
   const handleDrop = (event) => {
-    event.preventDefault()
-    setIsDragging(false)
+    event.preventDefault();
+    setIsDragging(false);
 
-    const droppedFile = event.dataTransfer.files[0]
+    const droppedFile = event.dataTransfer.files[0];
     if (droppedFile) {
-      processFile(droppedFile)
+      processFile(droppedFile);
     }
-  }
+  };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const clearFile = (e) => {
-    e.stopPropagation()
-    setFile(null)
-    setFileName("")
-    setCsvData([])
-    setJsonData([])
-    setError("")
-    
+    e.stopPropagation();
+    setFile(null);
+    setFileName("");
+    setCsvData([]);
+    setJsonData([]);
+    setError("");
+
     // Reset file input value to allow uploading the same file again
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const downloadTemplate = () => {
+    // UTF-8 BOM
+    const BOM = "\uFEFF";
+  
     // Create template content with headers
-    const templateContent = columnLabels.join(",")
-    
+    const templateContent = BOM + columnLabels.join(",");
+  
     // Create a blob from the CSV content
-    const blob = new Blob([templateContent], { type: "text/csv;charset=utf-8;" })
-
-    // Create a URL for the blob
-    const url = URL.createObjectURL(blob)
-
-    // Create a temporary link element
-    const link = document.createElement("a")
-    link.href = url
-    link.setAttribute("download", "email_import_template.csv")
-
-    // Append the link to the body
-    document.body.appendChild(link)
-
-    // Trigger the download
-    link.click()
-
-    // Clean up
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-
+    const blob = new Blob([templateContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+  
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "email_import_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  
     toast.success(
-      language === "ar" 
-        ? "تم تنزيل القالب بنجاح" 
+      language === "ar"
+        ? "تم تنزيل القالب بنجاح"
         : "Template downloaded successfully"
-    )
-  }
+    );
+  };
+  
 
   const dropzoneText = {
-    title: language === "ar" ? "اسحب وأفلت ملف CSV هنا" : "Drag and drop a CSV file here",
-    subtitle: language === "ar" ? "أو انقر لاستعراض الملفات" : "or click to browse files",
-    fileSelected: language === "ar" ? "انقر أو اسحب للاستبدال" : "Click or drag to replace",
-  }
+    title:
+      language === "ar"
+        ? "اسحب وأفلت ملف CSV هنا"
+        : "Drag and drop a CSV file here",
+    subtitle:
+      language === "ar"
+        ? "أو انقر لاستعراض الملفات"
+        : "or click to browse files",
+    fileSelected:
+      language === "ar" ? "انقر أو اسحب للاستبدال" : "Click or drag to replace",
+  };
 
   return (
-    <div className="flex flex-col w-full gap-6 animate-fade-in" dir={language === "ar" ? "rtl" : "ltr"}>
+    <div
+      className="flex flex-col w-full gap-6 animate-fade-in"
+      dir={language === "ar" ? "rtl" : "ltr"}
+    >
       <div
         className={`border-2 border-dashed rounded-lg p-8 transition-all duration-300 ease-in-out
-          ${isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}
+          ${
+            isDragging
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50"
+          }
           ${isProcessing ? "opacity-70 cursor-wait" : "cursor-pointer"}
           flex flex-col items-center justify-center relative`}
         onDragOver={handleDragOver}
@@ -251,19 +341,21 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
         onClick={triggerFileInput}
         role="button"
         tabIndex={0}
-        aria-label={language === "ar" ? "منطقة تحميل ملف CSV" : "CSV file upload area"}
+        aria-label={
+          language === "ar" ? "منطقة تحميل ملف CSV" : "CSV file upload area"
+        }
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
-            triggerFileInput()
+            triggerFileInput();
           }
         }}
       >
-        <input 
-          ref={fileInputRef} 
-          type="file" 
-          accept=".csv" 
-          onChange={handleFileChange} 
-          className="hidden" 
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="hidden"
           aria-hidden="true"
           disabled={isProcessing}
         />
@@ -292,7 +384,9 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium">{fileName}</p>
-                <p className="text-xs text-muted-foreground mt-1">{dropzoneText.fileSelected}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {dropzoneText.fileSelected}
+                </p>
               </div>
             </>
           ) : (
@@ -302,7 +396,9 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
               </div>
               <div className="text-center">
                 <p className="font-medium">{dropzoneText.title}</p>
-                <p className="text-sm text-muted-foreground mt-1">{dropzoneText.subtitle}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {dropzoneText.subtitle}
+                </p>
               </div>
             </>
           )}
@@ -310,21 +406,26 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
       </div>
 
       {error && (
-        <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md flex items-start gap-3 animate-scale-in" role="alert">
+        <div
+          className="bg-destructive/10 text-destructive px-4 py-3 rounded-md flex items-start gap-3 animate-scale-in"
+          role="alert"
+        >
           <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
           <p className="text-sm">{error}</p>
         </div>
       )}
 
       <div className="flex justify-end">
-        <Button 
-          variant="outline" 
-          onClick={downloadTemplate} 
-          className="text-sm" 
+        <Button
+          variant="outline"
+          onClick={downloadTemplate}
+          className="text-sm"
           type="button"
           disabled={isProcessing}
         >
-          <Download className={language === "ar" ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+          <Download
+            className={language === "ar" ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"}
+          />
           {language === "ar" ? "تنزيل القالب" : "Download Template"}
         </Button>
       </div>
@@ -333,16 +434,16 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
         <div className="animate-slide-up overflow-hidden rounded-md border">
           <div className="bg-muted/50 px-4 py-2 border-b flex justify-between items-center">
             <p className="text-sm font-medium">
-              {language === "ar" 
-                ? `معاينة البيانات (${csvData.length} سجل)` 
+              {language === "ar"
+                ? `معاينة البيانات (${csvData.length} سجل)`
                 : `Data Preview (${csvData.length} records)`}
             </p>
           </div>
           <ScrollArea className="h-[400px] w-full">
             <div className="p-2">
-              <Spreadsheet 
-                data={data} 
-                columnLabels={columnLabels} 
+              <Spreadsheet
+                data={data}
+                columnLabels={columnLabels}
                 className="w-full"
               />
             </div>
@@ -350,7 +451,7 @@ const CsvUploader = ({ setJsonData, language = "ar" }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default CsvUploader
+export default CsvUploader;
