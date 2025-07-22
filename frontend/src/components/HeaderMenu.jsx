@@ -1,5 +1,5 @@
 import React,{ useContext } from 'react'
-import Sidebar from './Sidebar'
+import Sidebar from '@/Sidebar'
 import AuthContext from "@/context/AuthContext"; // Import context
 
 export default function HeaderMenu() {
