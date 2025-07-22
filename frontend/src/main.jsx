@@ -5,17 +5,17 @@ import PrivateRoute from "@/components/PrivateRoute";
 import Layout from "@/layout/Layout";
 import Login from "@/pages/login/Login";
 import {AuthProvider} from "@/context/AuthContext";
-import './index.css'
-import MangeUsersPage from './pages/users/MangeUsersPage';
-import DepartmentsPage from './pages/departments/DepartmentsPage';
-import MunicipalitiesPage from './pages/municipalities/MunicipalitiesPage';
-import EmployeesEmails from './pages/employees/employeesEmails';
-import CreateEmploye from './pages/employees/components/RequestEmail';
-import RequestEmail from './pages/employees/components/RequestEmail';
-import CreateEmail from './pages/employees/components/CreateEmail';
-import AuditLogs from './pages/admin/AuditLogs';
-import Dashboard from './pages/Dashboard';
-import BulkEmailsImport from './pages/bulkEmailsImport/BulkEmailsImportPage';
+import '@/index.css'
+import MangeUsersPage from '@/pages/users/MangeUsersPage';
+import DepartmentsPage from '@/pages/departments/DepartmentsPage';
+import MunicipalitiesPage from '@/pages/municipalities/MunicipalitiesPage';
+import EmployeesEmails from '@/pages/employees/EmployeesEmails';
+import CreateEmploye from '@/pages/employees/components/RequestEmail';
+import RequestEmail from '@/pages/employees/components/RequestEmail';
+import CreateEmail from '@/pages/employees/components/CreateEmail';
+import AuditLogs from '@/pages/admin/AuditLogs';
+import Dashboard from '@/pages/Dashboard';
+import BulkEmailsImport from '@/pages/bulkEmailsImport/BulkEmailsImportPage';
 const router = createBrowserRouter([
   {
     path: "/",
